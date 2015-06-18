@@ -19,7 +19,8 @@
       "type": "dockable",
       "title": "Inspector",
       "icon": "panel/icon.png",
-      "width": 200,
+      "width": 300,
+      "min-width": 240,
       "messages": [
       ],
       "profiles": {
