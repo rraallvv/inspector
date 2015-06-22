@@ -22,6 +22,7 @@
       "width": 300,
       "min-width": 240,
       "messages": [
+        "selection:activated"
       ],
       "profiles": {
         "local": {
