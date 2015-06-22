@@ -1,4 +1,10 @@
 :host {
     overflow-x: hidden;
     overflow-y: auto;
+
+    @apply(--layout-vertical);
+}
+
+#content {
+    position: relative;
 }
