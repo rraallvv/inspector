@@ -27,7 +27,7 @@ Editor.registerPanel( 'inspector.panel', {
     },
 
     _loadInspector: function ( type, cb ) {
-        var url = Editor.inspector[type];
+        var url = Editor.inspectors[type];
         if ( url === undefined ) {
             if ( cb ) cb ();
             return;
