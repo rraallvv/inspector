@@ -51,7 +51,7 @@ Editor.registerPanel( 'inspector.panel', {
 
     'selection:activated': function ( type, id ) {
         if ( type === 'asset' ) {
-            var fspath = Editor.assetdb.remote._uuid2path[id];
+            var fspath = Editor.assetdb.remote.uuidToFspath(id);
             if ( fspath ) {
                 this.set('targetName', Path.basenameNoExt(fspath));
                 var metapath = fspath + '.meta';
