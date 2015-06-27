@@ -10,6 +10,7 @@
   "menus": {
     "Panel/Inspector": {
       "icon": "panel/icon.png",
+      "accelerator": "CmdOrCtrl+3",
       "message": "inspector:open"
     }
   },
