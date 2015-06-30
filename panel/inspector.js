@@ -10,14 +10,17 @@ Editor.registerPanel( 'inspector.panel', {
     listeners: {
         'meta-revert': '_onMetaRevert',
         'meta-apply': '_onMetaApply',
+        'resize': '_onResize'
     },
 
     properties: {
     },
 
     ready: function () {
-        this.targetName = '';
+        this.name = '';
+        this.path = '';
         this.curTarget = null;
+        this.curInspector = null;
     },
 
     inspect: function ( type, obj ) {
@@ -28,10 +31,14 @@ Editor.registerPanel( 'inspector.panel', {
             }
 
             if ( element ) {
-                element.name = this.targetName;
+                element.name = this.name;
+                element.path = this.path;
                 element.dirty = false;
                 element.target = obj;
                 contentDOM.appendChild(element);
+
+                //
+                this.curInspector = element;
 
                 // observe
                 this.curTarget = obj;
@@ -70,7 +77,8 @@ Editor.registerPanel( 'inspector.panel', {
 
     _loadMeta ( id, cb ) {
         if ( id.indexOf('mount-') === 0 ) {
-            this.set('targetName', id.substring(6));
+            this.name = id.substring(6);
+            this.path = '';
             if ( cb ) cb ( null, 'mount' );
             return;
         }
@@ -81,7 +89,8 @@ Editor.registerPanel( 'inspector.panel', {
             return;
         }
 
-        this.set('targetName', Path.basenameNoExt(fspath));
+        this.name = Path.basenameNoExt(fspath);
+        this.path = fspath;
         var metapath = fspath + '.meta';
         jsonObj = JSON.parse(Fs.readFileSync(metapath));
 
@@ -124,6 +133,11 @@ Editor.registerPanel( 'inspector.panel', {
         event.stopPropagation();
 
         Editor.info('@jwu please finish this by sending assetdb:apply(meta)');
+    },
+
+    _onResize: function ( event ) {
+        if ( this.curInspector && this.curInspector.resize )
+            this.curInspector.resize();
     },
 
     'selection:activated': function ( type, id ) {
