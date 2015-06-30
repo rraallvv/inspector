@@ -1,10 +1,10 @@
 :host {
-    overflow-x: hidden;
-    overflow-y: auto;
-
     @apply(--layout-vertical);
 }
 
 #content {
     position: relative;
+    padding: 10px;
+    overflow-x: hidden;
+    overflow-y: auto;
 }

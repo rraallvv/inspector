@@ -12,16 +12,27 @@ Editor.registerPanel( 'inspector.panel', {
 
     ready: function () {
         this.targetName = '';
+        this.curTarget = null;
     },
 
     inspect: function ( type, obj ) {
         this._loadInspector ( type, function ( err, element ) {
-            if ( element ) {
-                element.target = obj;
-
-                var contentDOM = Polymer.dom(this.$.content);
+            var contentDOM = Polymer.dom(this.$.content);
+            if ( contentDOM.firstChild ) {
                 contentDOM.removeChild( contentDOM.firstChild );
+            }
+
+            if ( element ) {
+                element.name = this.targetName;
+                element.target = obj;
                 contentDOM.appendChild(element);
+
+                // observe
+                this.curTarget = obj;
+                this._observer = function ( changes ) {
+                    element.dirty = true;
+                }.bind(this);
+                Object.observe( this.curTarget, this._observer );
             }
         }.bind(this));
     },
@@ -50,6 +61,14 @@ Editor.registerPanel( 'inspector.panel', {
     },
 
     'selection:activated': function ( type, id ) {
+        // unobserve
+        if ( this._observer ) {
+            Object.unobserve( this.curTarget, this._observer );
+            this._observer = null;
+            this.curTarget = null;
+        }
+
+        //
         if ( type === 'asset' ) {
             var fspath = Editor.assetdb.remote.uuidToFspath(id);
             if ( fspath ) {
