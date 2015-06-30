@@ -7,6 +7,11 @@ var _url2imported = {};
 Editor.registerPanel( 'inspector.panel', {
     is: 'editor-inspector',
 
+    listeners: {
+        'meta-revert': '_onMetaRevert',
+        'meta-apply': '_onMetaApply',
+    },
+
     properties: {
     },
 
@@ -60,6 +65,58 @@ Editor.registerPanel( 'inspector.panel', {
         });
     },
 
+    _loadMeta ( id, cb ) {
+        var fspath = Editor.assetdb.remote.uuidToFspath(id);
+        if ( !fspath ) {
+            if ( cb ) cb ( new Error('Can not find asset path by uuid %s', id) );
+            return;
+        }
+
+        this.set('targetName', Path.basenameNoExt(fspath));
+        var metapath = fspath + '.meta';
+        jsonObj = JSON.parse(Fs.readFileSync(metapath));
+
+        var metaType = jsonObj['meta-type'];
+        var metaCtor = Editor.metas[metaType];
+        if ( !metaCtor ) {
+            if ( cb ) cb ( new Error('Can not find meta by type %s', metaType) );
+            return;
+        }
+
+        var meta = new metaCtor();
+        meta.deserialize(jsonObj);
+
+        if ( cb ) cb ( null, metaType, meta );
+    },
+
+    _onMetaRevert: function ( event ) {
+        event.stopPropagation();
+
+        var id = this.curTarget.uuid;
+
+        // unobserve
+        if ( this._observer ) {
+            Object.unobserve( this.curTarget, this._observer );
+            this._observer = null;
+            this.curTarget = null;
+        }
+
+        //
+        this._loadMeta( id, function ( err, metaType, meta ) {
+            if ( err ) {
+                Editor.error( 'Failed to load meta %s, Message: %s', id, err.stack);
+                return;
+            }
+            this.inspect( metaType, meta );
+        }.bind(this));
+    },
+
+    _onMetaApply: function ( event ) {
+        event.stopPropagation();
+
+        Editor.info('@jwu please finish this by sending assetdb:apply(meta)');
+    },
+
     'selection:activated': function ( type, id ) {
         // unobserve
         if ( this._observer ) {
@@ -70,21 +127,13 @@ Editor.registerPanel( 'inspector.panel', {
 
         //
         if ( type === 'asset' ) {
-            var fspath = Editor.assetdb.remote.uuidToFspath(id);
-            if ( fspath ) {
-                this.set('targetName', Path.basenameNoExt(fspath));
-                var metapath = fspath + '.meta';
-                jsonObj = JSON.parse(Fs.readFileSync(metapath));
-
-                var metaType = jsonObj['meta-type'];
-                var metaCtor = Editor.metas[metaType];
-                if ( metaCtor ) {
-                    var meta = new metaCtor();
-                    meta.deserialize(jsonObj);
-
-                    this.inspect( metaType, meta );
+            this._loadMeta( id, function ( err, metaType, meta ) {
+                if ( err ) {
+                    Editor.error( 'Failed to load meta %s, Message: %s', id, err.stack);
+                    return;
                 }
-            }
+                this.inspect( metaType, meta );
+            }.bind(this));
         }
     },
 });
