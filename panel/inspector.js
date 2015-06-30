@@ -29,15 +29,18 @@ Editor.registerPanel( 'inspector.panel', {
 
             if ( element ) {
                 element.name = this.targetName;
+                element.dirty = false;
                 element.target = obj;
                 contentDOM.appendChild(element);
 
                 // observe
                 this.curTarget = obj;
-                this._observer = function ( changes ) {
-                    element.dirty = true;
-                }.bind(this);
-                Object.observe( this.curTarget, this._observer );
+                if ( this.curTarget ) {
+                    this._observer = function ( changes ) {
+                        element.dirty = true;
+                    }.bind(this);
+                    Object.observe( this.curTarget, this._observer );
+                }
             }
         }.bind(this));
     },
@@ -66,9 +69,15 @@ Editor.registerPanel( 'inspector.panel', {
     },
 
     _loadMeta ( id, cb ) {
+        if ( id.indexOf('mount-') === 0 ) {
+            this.set('targetName', id.substring(6));
+            if ( cb ) cb ( null, 'mount' );
+            return;
+        }
+
         var fspath = Editor.assetdb.remote.uuidToFspath(id);
         if ( !fspath ) {
-            if ( cb ) cb ( new Error('Can not find asset path by uuid %s', id) );
+            if ( cb ) cb ( new Error('Can not find asset path by uuid ' + id) );
             return;
         }
 
@@ -79,7 +88,7 @@ Editor.registerPanel( 'inspector.panel', {
         var metaType = jsonObj['meta-type'];
         var metaCtor = Editor.metas[metaType];
         if ( !metaCtor ) {
-            if ( cb ) cb ( new Error('Can not find meta by type %s', metaType) );
+            if ( cb ) cb ( new Error('Can not find meta by type ' + metaType) );
             return;
         }
 
@@ -95,7 +104,7 @@ Editor.registerPanel( 'inspector.panel', {
         var id = this.curTarget.uuid;
 
         // unobserve
-        if ( this._observer ) {
+        if ( this._observer && this.curTarget ) {
             Object.unobserve( this.curTarget, this._observer );
             this._observer = null;
             this.curTarget = null;
@@ -119,7 +128,7 @@ Editor.registerPanel( 'inspector.panel', {
 
     'selection:activated': function ( type, id ) {
         // unobserve
-        if ( this._observer ) {
+        if ( this._observer && this.curTarget ) {
             Object.unobserve( this.curTarget, this._observer );
             this._observer = null;
             this.curTarget = null;
