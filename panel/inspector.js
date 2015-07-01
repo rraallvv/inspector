@@ -20,12 +20,16 @@ Editor.registerPanel( 'inspector.panel', {
     ready: function () {
         this.name = '';
         this.path = '';
-        this.curTarget = null;
-        this.curInspector = null;
+        this._curTarget = null;
+        this._curInspector = null;
+        this._selectID = '';
     },
 
-    inspect: function ( type, obj ) {
+    inspect: function ( id, type, obj ) {
         this._loadInspector ( type, function ( err, element ) {
+            if ( this._selectID !== id )
+                return;
+
             var contentDOM = Polymer.dom(this.$.content);
             if ( contentDOM.firstChild ) {
                 contentDOM.removeChild( contentDOM.firstChild );
@@ -39,15 +43,15 @@ Editor.registerPanel( 'inspector.panel', {
                 contentDOM.appendChild(element);
 
                 //
-                this.curInspector = element;
+                this._curInspector = element;
 
                 // observe
-                this.curTarget = obj;
-                if ( this.curTarget ) {
+                this._curTarget = obj;
+                if ( this._curTarget ) {
                     this._observer = function ( changes ) {
                         element.dirty = true;
                     }.bind(this);
-                    Object.observe( this.curTarget, this._observer );
+                    Object.observe( this._curTarget, this._observer );
                 }
             }
         }.bind(this));
@@ -80,7 +84,9 @@ Editor.registerPanel( 'inspector.panel', {
         if ( id.indexOf('mount-') === 0 ) {
             this.name = id.substring(6);
             this.path = '';
-            if ( cb ) cb ( null, 'mount' );
+            if ( cb ) cb ( null, 'mount', {
+                uuid: id,
+            } );
             return;
         }
 
@@ -112,13 +118,13 @@ Editor.registerPanel( 'inspector.panel', {
     _onMetaRevert: function ( event ) {
         event.stopPropagation();
 
-        var id = this.curTarget.uuid;
+        var id = this._curTarget.uuid;
 
         // unobserve
-        if ( this._observer && this.curTarget ) {
-            Object.unobserve( this.curTarget, this._observer );
+        if ( this._observer && this._curTarget ) {
+            Object.unobserve( this._curTarget, this._observer );
             this._observer = null;
-            this.curTarget = null;
+            this._curTarget = null;
         }
 
         //
@@ -127,7 +133,7 @@ Editor.registerPanel( 'inspector.panel', {
                 Editor.error( 'Failed to load meta %s, Message: %s', id, err.stack);
                 return;
             }
-            this.inspect( metaType, meta );
+            this.inspect( meta.uuid, metaType, meta );
         }.bind(this));
     },
 
@@ -138,21 +144,23 @@ Editor.registerPanel( 'inspector.panel', {
     },
 
     _onResize: function ( event ) {
-        if ( this.curInspector && this.curInspector.resize )
-            this.curInspector.resize();
+        if ( this._curInspector && this._curInspector.resize )
+            this._curInspector.resize();
     },
 
     _onPanelShow: function ( event ) {
-        if ( this.curInspector && this.curInspector.resize )
-            this.curInspector.resize();
+        if ( this._curInspector && this._curInspector.resize )
+            this._curInspector.resize();
     },
 
     'selection:activated': function ( type, id ) {
+        this._selectID = id;
+
         // unobserve
-        if ( this._observer && this.curTarget ) {
-            Object.unobserve( this.curTarget, this._observer );
+        if ( this._observer && this._curTarget ) {
+            Object.unobserve( this._curTarget, this._observer );
             this._observer = null;
-            this.curTarget = null;
+            this._curTarget = null;
         }
 
         //
@@ -162,8 +170,16 @@ Editor.registerPanel( 'inspector.panel', {
                     Editor.error( 'Failed to load meta %s, Message: %s', id, err.stack);
                     return;
                 }
-                this.inspect( metaType, meta );
+                this.inspect( meta.uuid, metaType, meta );
             }.bind(this));
+
+            return;
+        }
+
+        //
+        if ( type === 'node' ) {
+
+            return;
         }
     },
 });
