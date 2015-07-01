@@ -10,7 +10,8 @@ Editor.registerPanel( 'inspector.panel', {
     listeners: {
         'meta-revert': '_onMetaRevert',
         'meta-apply': '_onMetaApply',
-        'resize': '_onResize'
+        'resize': '_onResize',
+        'panel-show': '_onPanelShow',
     },
 
     properties: {
@@ -136,6 +137,11 @@ Editor.registerPanel( 'inspector.panel', {
     },
 
     _onResize: function ( event ) {
+        if ( this.curInspector && this.curInspector.resize )
+            this.curInspector.resize();
+    },
+
+    _onPanelShow: function ( event ) {
         if ( this.curInspector && this.curInspector.resize )
             this.curInspector.resize();
     },
