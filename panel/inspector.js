@@ -84,28 +84,29 @@ Editor.registerPanel( 'inspector.panel', {
             return;
         }
 
-        var fspath = Editor.assetdb.remote.uuidToFspath(id);
-        if ( !fspath ) {
-            if ( cb ) cb ( new Error('Can not find asset path by uuid ' + id) );
-            return;
-        }
+        Editor.assetdb.queryPathByUuid( id, function ( fspath ) {
+            if ( !fspath ) {
+                if ( cb ) cb ( new Error('Can not find asset path by uuid ' + id) );
+                return;
+            }
 
-        this.name = Path.basenameNoExt(fspath);
-        this.path = fspath;
-        var metapath = fspath + '.meta';
-        jsonObj = JSON.parse(Fs.readFileSync(metapath));
+            this.name = Path.basenameNoExt(fspath);
+            this.path = fspath;
+            var metapath = fspath + '.meta';
+            jsonObj = JSON.parse(Fs.readFileSync(metapath));
 
-        var metaType = jsonObj['meta-type'];
-        var metaCtor = Editor.metas[metaType];
-        if ( !metaCtor ) {
-            if ( cb ) cb ( new Error('Can not find meta by type ' + metaType) );
-            return;
-        }
+            var metaType = jsonObj['meta-type'];
+            var metaCtor = Editor.metas[metaType];
+            if ( !metaCtor ) {
+                if ( cb ) cb ( new Error('Can not find meta by type ' + metaType) );
+                return;
+            }
 
-        var meta = new metaCtor();
-        meta.deserialize(jsonObj);
+            var meta = new metaCtor();
+            meta.deserialize(jsonObj);
 
-        if ( cb ) cb ( null, metaType, meta );
+            if ( cb ) cb ( null, metaType, meta );
+        }.bind(this));
     },
 
     _onMetaRevert: function ( event ) {
