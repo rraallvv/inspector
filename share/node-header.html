@@ -1,0 +1,41 @@
+<dom-module id="inspector-node-header">
+    <style>
+        :host {
+            flex: none;
+            padding-left: 10px;
+            padding-right: 10px;
+            padding-top: 5px;
+        }
+
+        editor-toolbar {
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #666;
+        }
+    </style>
+
+    <template>
+        <editor-toolbar>
+            <editor-checkbox checked="{{enabled}}"></editor-checkbox>
+            <editor-input class="flex-1" value="{{name}}"></editor-input>
+        </editor-toolbar>
+    </template>
+</dom-module>
+
+<script>
+    Polymer({
+        is: 'inspector-node-header',
+
+        properties: {
+            enabled: {
+                type: Boolean,
+                value: true,
+            },
+
+            name: {
+                type: String,
+                value: '',
+            },
+        },
+    });
+</script>

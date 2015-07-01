@@ -25,12 +25,21 @@ Editor.registerPanel( 'inspector.panel', {
         this._selectID = '';
     },
 
+    uninspect: function () {
+        // unobserve
+        if ( this._observer && this._curTarget ) {
+            Object.unobserve( this._curTarget, this._observer );
+            this._observer = null;
+            this._curTarget = null;
+        }
+
+        //
+        this._removeContent();
+    },
+
     inspect: function ( id, type, obj ) {
         this._loadInspector ( type, function ( err, element ) {
-            var contentDOM = Polymer.dom(this.$.content);
-            if ( contentDOM.firstChild ) {
-                contentDOM.removeChild( contentDOM.firstChild );
-            }
+            this._removeContent();
 
             if ( this._selectID !== id )
                 return;
@@ -40,6 +49,8 @@ Editor.registerPanel( 'inspector.panel', {
                 element.path = this.path;
                 element.dirty = false;
                 element.target = obj;
+
+                var contentDOM = Polymer.dom(this.$.content);
                 contentDOM.appendChild(element);
 
                 //
@@ -57,6 +68,13 @@ Editor.registerPanel( 'inspector.panel', {
         }.bind(this));
     },
 
+    _removeContent: function () {
+        var contentDOM = Polymer.dom(this.$.content);
+        if ( contentDOM.firstChild ) {
+            contentDOM.removeChild( contentDOM.firstChild );
+        }
+    },
+
     _loadInspector: function ( type, cb ) {
         var url = Editor.inspectors[type];
         if ( url === undefined ) {
@@ -64,15 +82,23 @@ Editor.registerPanel( 'inspector.panel', {
             return;
         }
 
+        // EXAMPLE 1: Fire.Texture ==> fire-texture
+        // EXAMPLE 2: fooBar ==> foo-bar
+        var prefix = type.replace(/([a-z][A-Z])/g, function (g) {
+            return g[0] + '-' + g[1].toLowerCase();
+        });
+        prefix = prefix.replace(/\./g, '-' );
+
+        //
         if ( _url2imported[url] ) {
-            var el = document.createElement( type + '-inspector');
+            var el = document.createElement( prefix + '-inspector');
             if ( cb ) cb ( null, el );
             return;
         }
 
         Polymer.Base.importHref( url, function ( event ) {
             _url2imported[url] = true;
-            var el = document.createElement( type + '-inspector');
+            var el = document.createElement( prefix + '-inspector');
             if ( cb ) cb ( null, el );
         }, function ( err ) {
             if ( cb ) cb ( err );
@@ -163,6 +189,12 @@ Editor.registerPanel( 'inspector.panel', {
         }
 
         //
+        if ( !id ) {
+            this._removeContent();
+            return;
+        }
+
+        //
         if ( type === 'asset' ) {
             this._loadMeta( id, function ( err, metaType, meta ) {
                 if ( err ) {
@@ -184,8 +216,53 @@ Editor.registerPanel( 'inspector.panel', {
     },
 
     'scene:reply-query-node': function ( nodeInfo ) {
-        // TODO
-        this.inspect( nodeInfo.id, nodeInfo.type, nodeInfo );
+        // TODO: build nodeInfo
+
+        nodeInfo = {
+            types: {
+                'Fire.NodeWrapper': {
+                    properties: {
+                        foobar: {
+                            default: 0,
+                            type: 'Integer'
+                        },
+                        asset: {
+                            default: null,
+                        },
+                    },
+                },
+                MyScript: {
+                    properties: {
+                        foobar2: {
+                            default: 0,
+                            type: 'String'
+                        },
+                    },
+                },
+            },
+            value: {
+                __type__: 'Fire.NodeWrapper',
+                id: this._selectID,
+                name: 'Foobar',
+                foobar: 100,
+                asset: {
+                    uuid: '83109b07-0577-49c9-9daa-f5104873b87e',
+                    __type__: 'Fire.Texture'
+                },
+
+                __mixins__: [
+                    {
+                        __type__: 'MyScript',
+                        foobar2: 'foobar',
+                    },
+                ],
+            }
+        };
+
+        // TODO: rebuild target
+        var target = nodeInfo.value;
+
+        this.inspect( target.id, target.__type__, target );
     },
 });
 
