@@ -27,13 +27,13 @@ Editor.registerPanel( 'inspector.panel', {
 
     inspect: function ( id, type, obj ) {
         this._loadInspector ( type, function ( err, element ) {
-            if ( this._selectID !== id )
-                return;
-
             var contentDOM = Polymer.dom(this.$.content);
             if ( contentDOM.firstChild ) {
                 contentDOM.removeChild( contentDOM.firstChild );
             }
+
+            if ( this._selectID !== id )
+                return;
 
             if ( element ) {
                 element.name = this.name;
@@ -60,7 +60,7 @@ Editor.registerPanel( 'inspector.panel', {
     _loadInspector: function ( type, cb ) {
         var url = Editor.inspectors[type];
         if ( url === undefined ) {
-            if ( cb ) cb ();
+            if ( cb ) cb ( new Error ( 'Can not find inspector for type %s', type ) );
             return;
         }
 
@@ -74,9 +74,8 @@ Editor.registerPanel( 'inspector.panel', {
             _url2imported[url] = true;
             var el = document.createElement( type + '-inspector');
             if ( cb ) cb ( null, el );
-            return;
         }, function ( err ) {
-            Editor.error( 'Failed to load %s. message: %s', url, err.message );
+            if ( cb ) cb ( err );
         });
     },
 
@@ -178,9 +177,15 @@ Editor.registerPanel( 'inspector.panel', {
 
         //
         if ( type === 'node' ) {
+            Editor.sendToPanel('scene.panel', 'scene:query-node', id );
 
             return;
         }
+    },
+
+    'scene:reply-query-node': function ( nodeInfo ) {
+        // TODO
+        this.inspect( nodeInfo.id, nodeInfo.type, nodeInfo );
     },
 });
 
