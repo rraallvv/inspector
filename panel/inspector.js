@@ -3,6 +3,7 @@ var Fs = require('fire-fs');
 var Path = require('fire-path');
 
 var _url2imported = {};
+var _buildNode = Editor.require('packages://inspector/utils/build-node');
 
 Editor.registerPanel( 'inspector.panel', {
     is: 'editor-inspector',
@@ -85,9 +86,9 @@ Editor.registerPanel( 'inspector.panel', {
         // EXAMPLE 1: Fire.Texture ==> fire-texture
         // EXAMPLE 2: fooBar ==> foo-bar
         var prefix = type.replace(/([a-z][A-Z])/g, function (g) {
-            return g[0] + '-' + g[1].toLowerCase();
+            return g[0] + '-' + g[1];
         });
-        prefix = prefix.replace(/\./g, '-' );
+        prefix = prefix.replace(/\./g, '-' ).toLowerCase();
 
         //
         if ( _url2imported[url] ) {
@@ -216,53 +217,11 @@ Editor.registerPanel( 'inspector.panel', {
     },
 
     'scene:reply-query-node': function ( nodeInfo ) {
-        // TODO: build nodeInfo
-
-        nodeInfo = {
-            types: {
-                'Fire.NodeWrapper': {
-                    properties: {
-                        foobar: {
-                            default: 0,
-                            type: 'Integer'
-                        },
-                        asset: {
-                            default: null,
-                        },
-                    },
-                },
-                MyScript: {
-                    properties: {
-                        foobar2: {
-                            default: 0,
-                            type: 'String'
-                        },
-                    },
-                },
-            },
-            value: {
-                __type__: 'Fire.NodeWrapper',
-                id: this._selectID,
-                name: 'Foobar',
-                foobar: 100,
-                asset: {
-                    uuid: '83109b07-0577-49c9-9daa-f5104873b87e',
-                    __type__: 'Fire.Texture'
-                },
-
-                __mixins__: [
-                    {
-                        __type__: 'MyScript',
-                        foobar2: 'foobar',
-                    },
-                ],
-            }
-        };
-
-        // TODO: rebuild target
+        // rebuild target
+        _buildNode( nodeInfo.value, nodeInfo.types );
         var target = nodeInfo.value;
 
-        this.inspect( target.id, target.__type__, target );
+        this.inspect( target.id.value, target.__type__, target );
     },
 });
 

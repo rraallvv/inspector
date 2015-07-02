@@ -10,13 +10,12 @@
         editor-toolbar {
             padding-bottom: 5px;
             margin-bottom: 10px;
-            border-bottom: 1px solid #666;
         }
     </style>
 
     <template>
         <editor-toolbar>
-            <editor-checkbox checked="{{enabled}}"></editor-checkbox>
+            <editor-checkbox disabled checked="{{enabled}}"></editor-checkbox>
             <editor-input class="flex-1" value="{{name}}"></editor-input>
         </editor-toolbar>
     </template>

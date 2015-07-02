@@ -8,3 +8,12 @@
     padding-left: 10px;
     padding-right: 10px;
 }
+
+.section {
+    border-bottom: 1px solid #666;
+    margin-bottom: 5px;
+
+    font-size: 1.4rem;
+    color: #aaa;
+    font-weight: bold;
+}
