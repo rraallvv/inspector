@@ -24,6 +24,7 @@ Editor.registerPanel( 'inspector.panel', {
         this._curTarget = null;
         this._curInspector = null;
         this._selectID = '';
+        this._selectType = '';
     },
 
     uninspect: function () {
@@ -191,9 +192,14 @@ Editor.registerPanel( 'inspector.panel', {
 
         //
         if ( !id ) {
-            this._removeContent();
+            if ( this._selectType === type ) {
+                this._removeContent();
+            }
             return;
         }
+
+        //
+        this._selectType = type;
 
         //
         if ( type === 'asset' ) {
