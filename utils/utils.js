@@ -41,4 +41,23 @@ var buildNode = function ( node, clsList ) {
     }
 };
 
-module.exports = buildNode;
+var normalizePath = function ( path, trim ) {
+    var list = path.split('.');
+    if ( list[0] === trim )
+        list.splice( 0, 1 );
+
+    var result = [];
+    for ( var i = 0; i < list.length; ++i ) {
+        var name = list[i];
+        if ( i%2 === 0 ) {
+            result.push(name);
+        }
+    }
+    return result.join('.');
+};
+
+module.exports = {
+    buildNode: buildNode,
+    normalizePath: normalizePath,
+};
+

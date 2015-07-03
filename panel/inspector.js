@@ -1,9 +1,9 @@
 (function () {
 var Fs = require('fire-fs');
 var Path = require('fire-path');
+var Utils = Editor.require('packages://inspector/utils/utils');
 
 var _url2imported = {};
-var _buildNode = Editor.require('packages://inspector/utils/build-node');
 
 Editor.registerPanel( 'inspector.panel', {
     is: 'editor-inspector',
@@ -53,13 +53,11 @@ Editor.registerPanel( 'inspector.panel', {
                 else if ( this._selectType === 'node' ) {
                     element.addEventListener( 'target-changed', function ( event ) {
                         element.dirty = true;
-                        // TODO
-                        // console.log( event.detail.path, event.detail.value);
-                        // Editor.sendToPanel('scene.panel', 'scene:node-set',
-                        //                    id,
-                        //                    event.details.path,
-                        //                    event.details.value
-                        //                   );
+                        Editor.sendToPanel('scene.panel', 'scene:node-set-property',
+                                           id,
+                                           Utils.normalizePath(event.detail.path, 'target'),
+                                           event.detail.value
+                                          );
                     });
                 }
 
@@ -213,7 +211,7 @@ Editor.registerPanel( 'inspector.panel', {
 
     'scene:reply-query-node': function ( nodeInfo ) {
         // rebuild target
-        _buildNode( nodeInfo.value, nodeInfo.types );
+        Utils.buildNode( nodeInfo.value, nodeInfo.types );
         var target = nodeInfo.value;
 
         this.inspect( target.id.value, target.__type__, target );

@@ -34,6 +34,7 @@
     }
   },
   "tests": [
-    "test/build-node.html"
+    "test/build-node.html",
+    "test/normalize-path.html"
   ]
 }

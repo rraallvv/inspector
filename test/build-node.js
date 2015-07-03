@@ -1,4 +1,4 @@
-var buildNode = Editor.require('packages://inspector/utils/build-node');
+var buildNode = Editor.require('packages://inspector/utils/utils').buildNode;
 
 describe('smoke testing', function() {
     it('should pass if properties is null', function() {
