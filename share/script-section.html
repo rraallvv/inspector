@@ -1,0 +1,45 @@
+<dom-module id="inspector-script-section">
+    <style>
+    </style>
+
+    <template>
+        <editor-section text="{{target.__type__}}">
+            <template is="dom-repeat" items="{{_props(target)}}">
+                <editor-prop
+                    name="{{item.name}}"
+                    value="{{item.value}}"
+                    attrs="{{item.attrs}}"
+                >
+                </editor-prop>
+            </template>
+        </editor-section>
+    </template>
+</dom-module>
+
+<script>
+    Polymer({
+        is: 'inspector-script-section',
+
+        properties: {
+            target: {
+                type: Object,
+                value: null,
+                notify: true,
+            },
+        },
+
+        _props: function ( target ) {
+            var props = [];
+            for ( var p in target ) {
+                if ( p === '__type__' )
+                    continue;
+
+                if ( p.indexOf('_') !== -1 )
+                    continue;
+
+                props.push ( target[p] );
+            }
+            return props;
+        },
+    });
+</script>

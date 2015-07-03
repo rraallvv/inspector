@@ -28,14 +28,6 @@ Editor.registerPanel( 'inspector.panel', {
     },
 
     uninspect: function () {
-        // unobserve
-        if ( this._observer && this._curTarget ) {
-            Object.unobserve( this._curTarget, this._observer );
-            this._observer = null;
-            this._curTarget = null;
-        }
-
-        //
         this._removeContent();
     },
 
@@ -52,20 +44,31 @@ Editor.registerPanel( 'inspector.panel', {
                 element.dirty = false;
                 element.target = obj;
 
+                // observe changes
+                if ( this._selectType === 'asset' ) {
+                    element.addEventListener( 'target-changed', function ( event ) {
+                        element.dirty = true;
+                    });
+                }
+                else if ( this._selectType === 'node' ) {
+                    element.addEventListener( 'target-changed', function ( event ) {
+                        element.dirty = true;
+                        // TODO
+                        // console.log( event.detail.path, event.detail.value);
+                        // Editor.sendToPanel('scene.panel', 'scene:node-set',
+                        //                    id,
+                        //                    event.details.path,
+                        //                    event.details.value
+                        //                   );
+                    });
+                }
+
                 var contentDOM = Polymer.dom(this.$.content);
                 contentDOM.appendChild(element);
 
                 //
                 this._curInspector = element;
-
-                // observe
                 this._curTarget = obj;
-                if ( this._curTarget ) {
-                    this._observer = function ( changes ) {
-                        element.dirty = true;
-                    }.bind(this);
-                    Object.observe( this._curTarget, this._observer );
-                }
             }
         }.bind(this));
     },
@@ -147,13 +150,6 @@ Editor.registerPanel( 'inspector.panel', {
 
         var id = this._curTarget.uuid;
 
-        // unobserve
-        if ( this._observer && this._curTarget ) {
-            Object.unobserve( this._curTarget, this._observer );
-            this._observer = null;
-            this._curTarget = null;
-        }
-
         //
         this._loadMeta( id, function ( err, metaType, meta ) {
             if ( err ) {
@@ -182,13 +178,6 @@ Editor.registerPanel( 'inspector.panel', {
 
     'selection:activated': function ( type, id ) {
         this._selectID = id;
-
-        // unobserve
-        if ( this._observer && this._curTarget ) {
-            Object.unobserve( this._curTarget, this._observer );
-            this._observer = null;
-            this._curTarget = null;
-        }
 
         //
         if ( !id ) {

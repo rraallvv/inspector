@@ -1,0 +1,27 @@
+<link rel="import" href="script-section.html">
+
+<dom-module id="inspector-mixins-section">
+    <style>
+    </style>
+
+    <template>
+        <template is="dom-repeat" items="{{target.__mixins__}}">
+            <inspector-script-section target="{{item}}">
+            </inspector-script-section>
+        </template>
+    </template>
+</dom-module>
+
+<script>
+    Polymer({
+        is: 'inspector-mixins-section',
+
+        properties: {
+            target: {
+                type: Object,
+                value: null,
+                notify: true,
+            },
+        },
+    });
+</script>
