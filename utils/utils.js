@@ -1,10 +1,10 @@
-var buildNode = function ( node, clsList ) {
+var buildNode = function ( node, type, clsList ) {
     var clsDef;
 
-    if ( node.__type__ ) {
-        clsDef = clsList[node.__type__];
+    if ( type ) {
+        clsDef = clsList[type];
     } else {
-        Editor.warn('Can not find class define for type %s', node.__type__ );
+        Editor.warn('Can not find class define for type %s', type );
     }
 
     if ( clsDef ) {
@@ -16,25 +16,33 @@ var buildNode = function ( node, clsList ) {
             if ( k === '__mixins__' ) {
                 var mixins = node[k];
                 for ( var i = 0; i < mixins.length; ++i ) {
-                    buildNode(mixins[i], clsList);
+                    buildNode(mixins[i], mixins[i].__type__, clsList);
                 }
                 continue;
             }
 
             var val = node[k];
-            var attrs;
+            var valAttrs;
+            var valType;
 
             if ( clsDef.properties ) {
-                attrs = clsDef.properties[k];
+                valAttrs = clsDef.properties[k];
+                valType = valAttrs.type;
             }
 
-            if ( val && typeof val === 'object' && clsDef.properties ) {
-                buildNode( val, clsList );
+            if ( val && typeof val === 'object' ) {
+                if ( val.__type__ ) {
+                    valType = val.__type__;
+                    delete val.__type__;
+                }
+
+                buildNode( val, valType, clsList );
             }
 
             node[k] = {
                 name: EditorUI.toHumanText(k),
-                attrs: attrs,
+                attrs: valAttrs,
+                type: valType ? valType : '',
                 value: val,
             };
         }

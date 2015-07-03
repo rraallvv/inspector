@@ -3,12 +3,13 @@
     </style>
 
     <template>
-        <editor-section text="{{target.__type__}}">
+        <editor-section text="[[target.__type__]]">
             <template is="dom-repeat" items="{{_props(target)}}">
                 <editor-prop
-                    name="{{item.name}}"
+                    name="[[item.name]]"
+                    type="[[item.type]]"
+                    attrs="[[item.attrs]]"
                     value="{{item.value}}"
-                    attrs="{{item.attrs}}"
                 >
                 </editor-prop>
             </template>

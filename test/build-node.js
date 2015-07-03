@@ -7,7 +7,7 @@ describe('smoke testing', function() {
             foobar: null,
         };
 
-        buildNode( node, {
+        buildNode( node, node.__type__, {
             MyClass: {
                 properties: {
                     foobar: {
@@ -28,7 +28,7 @@ describe('build result', function() {
             foobar: 'foobar',
         };
 
-        buildNode( node, {
+        buildNode( node, node.__type__, {
             MyClass: {
                 properties: {
                     foobar: {
@@ -57,7 +57,7 @@ describe('build result', function() {
             ],
         };
 
-        buildNode( node, {
+        buildNode( node, node.__type__, {
             MyClass: {
                 properties: {
                 },
@@ -82,5 +82,28 @@ describe('build result', function() {
         expect ( node.__mixins__[0].foo.attrs.type ).to.be.equal('String');
         expect ( node.__mixins__[1].bar.value ).to.be.equal(2);
         expect ( node.__mixins__[1].bar.attrs.type ).to.be.equal('Integer');
+    });
+
+    it('should use properties\' type', function() {
+        var node = {
+            __type__: 'MyClass',
+            foobar: {
+                __type__: 'Foobar',
+                a: 'a',
+            },
+        };
+
+        buildNode( node, node.__type__, {
+            MyClass: {
+                properties: {
+                    foobar: {
+                        type: 'Foobar02',
+                    }
+                },
+            },
+        } );
+
+        expect ( node.foobar.value ).to.be.deep.equal({ a: 'a' });
+        expect ( node.foobar.type ).to.be.equal('Foobar');
     });
 });

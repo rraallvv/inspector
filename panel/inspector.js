@@ -211,7 +211,7 @@ Editor.registerPanel( 'inspector.panel', {
 
     'scene:reply-query-node': function ( nodeInfo ) {
         // rebuild target
-        Utils.buildNode( nodeInfo.value, nodeInfo.types );
+        Utils.buildNode( nodeInfo.value, nodeInfo.value.__type__, nodeInfo.types );
         var target = nodeInfo.value;
 
         this.inspect( target.id.value, target.__type__, target );
