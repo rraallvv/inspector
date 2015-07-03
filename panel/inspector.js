@@ -33,10 +33,10 @@ Editor.registerPanel( 'inspector.panel', {
 
     inspect: function ( id, type, obj ) {
         this._loadInspector ( type, function ( err, element ) {
-            this._removeContent();
-
             if ( this._selectID !== id )
                 return;
+
+            this._removeContent();
 
             if ( element ) {
                 element.name = this.name;
@@ -73,8 +73,8 @@ Editor.registerPanel( 'inspector.panel', {
 
     _removeContent: function () {
         var contentDOM = Polymer.dom(this.$.content);
-        if ( contentDOM.firstChild ) {
-            contentDOM.removeChild( contentDOM.firstChild );
+        if ( contentDOM.children.length > 0 ) {
+            contentDOM.removeChild( contentDOM.children[0] );
         }
     },
 
