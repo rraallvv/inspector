@@ -40,7 +40,7 @@ var buildNode = function ( node, type, clsList, useArray ) {
             }
 
             node[k] = {
-                name: EditorUI.toHumanText(k),
+                name: k,
                 attrs: valAttrs,
                 type: valType ? valType : '',
                 value: val,
@@ -49,10 +49,10 @@ var buildNode = function ( node, type, clsList, useArray ) {
     }
 };
 
-var normalizePath = function ( path, trim ) {
+var normalizePath = function ( path ) {
+    path = path.replace( /^target\./, '' );
+    path = path.replace( /^__mixins__\.\d+\./, '' );
     var list = path.split('.');
-    if ( list[0] === trim )
-        list.splice( 0, 1 );
 
     var result = [];
     for ( var i = 0; i < list.length; ++i ) {

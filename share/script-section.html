@@ -50,10 +50,10 @@
             var subPath = event.detail.path;
 
             if ( subPath ) {
-                this.notifyPath('target.' + mixinType + '.' + propEL.name + '.' + subPath,
+                this.notifyPath('target.' + propEL.name + '.' + subPath,
                                 event.detail.value );
             } else {
-                this.notifyPath('target.' + mixinType + '.' + propEL.name,
+                this.notifyPath('target.' + propEL.name + '.value',
                                 event.detail.value );
             }
         },
