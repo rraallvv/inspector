@@ -10,6 +10,7 @@
                     type="[[item.type]]"
                     attrs="[[item.attrs]]"
                     value="{{item.value}}"
+                    on-value-changed="_onValueChanged"
                 >
                 </editor-prop>
             </template>
@@ -41,6 +42,20 @@
                 props.push ( target[p] );
             }
             return props;
+        },
+
+        _onValueChanged: function ( event ) {
+            var mixinType = this.target.__type__;
+            var propEL = Polymer.dom(event).localTarget
+            var subPath = event.detail.path;
+
+            if ( subPath ) {
+                this.notifyPath('target.' + mixinType + '.' + propEL.name + '.' + subPath,
+                                event.detail.value );
+            } else {
+                this.notifyPath('target.' + mixinType + '.' + propEL.name,
+                                event.detail.value );
+            }
         },
     });
 </script>

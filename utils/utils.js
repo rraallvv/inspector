@@ -1,4 +1,4 @@
-var buildNode = function ( node, type, clsList ) {
+var buildNode = function ( node, type, clsList, useArray ) {
     var clsDef;
 
     if ( type ) {

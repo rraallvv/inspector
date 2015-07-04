@@ -27,10 +27,6 @@ Editor.registerPanel( 'inspector.panel', {
         this._selectType = '';
     },
 
-    uninspect: function () {
-        this._removeContent();
-    },
-
     inspect: function ( id, type, obj ) {
         this._loadInspector ( type, function ( err, element ) {
             if ( this._selectID !== id )
@@ -69,6 +65,17 @@ Editor.registerPanel( 'inspector.panel', {
                 this._curTarget = obj;
             }
         }.bind(this));
+    },
+
+    uninspect: function () {
+        this._removeContent();
+
+        this.name = '';
+        this.path = '';
+        this._curTarget = null;
+        this._curInspector = null;
+        this._selectID = '';
+        this._selectType = '';
     },
 
     _removeContent: function () {
