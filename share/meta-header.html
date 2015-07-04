@@ -29,8 +29,8 @@
     <template>
         <editor-toolbar>
             <span class="flex-1 layout horizontal center">
-                <img class="icon" src={{src}}></img>
-                <div class="title">{{name}}</div>
+                <img class="icon" src={{icon}}></img>
+                <div class="title">{{target.__name__}}</div>
             </span>
 
             <span class="layout horizontal">
@@ -50,12 +50,12 @@
         is: 'inspector-meta-header',
 
         properties: {
-            name: {
-                type: String,
-                value: '',
+            target: {
+                type: Object,
+                value: null,
             },
 
-            src: {
+            icon: {
                 type: String,
                 value: '',
             },
@@ -69,7 +69,9 @@
         _onRevert: function ( event ) {
             event.stopPropagation();
 
-            this.fire('meta-revert');
+            this.fire('meta-revert', {
+                uuid: this.target.uuid,
+            });
         },
 
         _onApply: function ( event ) {

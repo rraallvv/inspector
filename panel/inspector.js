@@ -1,9 +1,11 @@
 (function () {
 var Fs = require('fire-fs');
 var Path = require('fire-path');
+var DiffPatch = require('jsondiffpatch');
 var Utils = Editor.require('packages://inspector/utils/utils');
 
 var _url2imported = {};
+var _diffpatcher = DiffPatch.create({});
 
 Editor.registerPanel( 'inspector.panel', {
     is: 'editor-inspector',
@@ -19,15 +21,56 @@ Editor.registerPanel( 'inspector.panel', {
     },
 
     ready: function () {
-        this.name = '';
-        this.path = '';
-        this._curTarget = null;
+        this.reset();
+    },
+
+    reset: function () {
         this._curInspector = null;
         this._selectID = '';
         this._selectType = '';
     },
 
-    inspect: function ( id, type, obj ) {
+    startInspect: function ( type, id ) {
+        //
+        if ( this._queryID ) {
+            this.cancelAsync(this._queryID);
+            this._queryID = null;
+        }
+
+        //
+        if ( !id ) {
+            if ( this._selectType === type ) {
+                this.uninspect();
+            }
+            return;
+        }
+
+        //
+        this._selectType = type;
+        this._selectID = id;
+
+        //
+        if ( type === 'asset' ) {
+            this._loadMeta( id, function ( err, metaType, meta ) {
+                if ( err ) {
+                    Editor.error( 'Failed to load meta %s, Message: %s', id, err.stack);
+                    return;
+                }
+                this.inspect( metaType, meta.uuid, meta );
+            }.bind(this));
+
+            return;
+        }
+
+        //
+        if ( type === 'node' ) {
+            Editor.sendToPanel('scene.panel', 'scene:query-node', id );
+
+            return;
+        }
+    },
+
+    inspect: function ( type, id, obj ) {
         this._loadInspector ( type, function ( err, element ) {
             if ( this._selectID !== id )
                 return;
@@ -35,19 +78,25 @@ Editor.registerPanel( 'inspector.panel', {
             this._removeContent();
 
             if ( element ) {
-                element.name = this.name;
-                element.path = this.path;
                 element.dirty = false;
                 element.target = obj;
+                element._rebuilding = false;
+                element._type = this._selectType;
 
                 // observe changes
                 if ( this._selectType === 'asset' ) {
                     element.addEventListener( 'target-changed', function ( event ) {
+                        if ( element._rebuilding )
+                            return;
+
                         element.dirty = true;
                     });
                 }
                 else if ( this._selectType === 'node' ) {
                     element.addEventListener( 'target-changed', function ( event ) {
+                        if ( element._rebuilding )
+                            return;
+
                         element.dirty = true;
                         Editor.sendToPanel('scene.panel', 'scene:node-set-property',
                                            id,
@@ -62,20 +111,13 @@ Editor.registerPanel( 'inspector.panel', {
 
                 //
                 this._curInspector = element;
-                this._curTarget = obj;
             }
         }.bind(this));
     },
 
     uninspect: function () {
+        this.reset();
         this._removeContent();
-
-        this.name = '';
-        this.path = '';
-        this._curTarget = null;
-        this._curInspector = null;
-        this._selectID = '';
-        this._selectType = '';
     },
 
     _removeContent: function () {
@@ -117,9 +159,9 @@ Editor.registerPanel( 'inspector.panel', {
 
     _loadMeta ( id, cb ) {
         if ( id.indexOf('mount-') === 0 ) {
-            this.name = id.substring(6);
-            this.path = '';
             if ( cb ) cb ( null, 'mount', {
+                __name__: id.substring(6),
+                __path__: '',
                 uuid: id,
             } );
             return;
@@ -131,8 +173,6 @@ Editor.registerPanel( 'inspector.panel', {
                 return;
             }
 
-            this.name = Path.basenameNoExt(fspath);
-            this.path = fspath;
             var metapath = fspath + '.meta';
             jsonObj = JSON.parse(Fs.readFileSync(metapath));
 
@@ -145,6 +185,8 @@ Editor.registerPanel( 'inspector.panel', {
 
             var meta = new metaCtor();
             meta.deserialize(jsonObj);
+            meta.__name__ = Path.basenameNoExt(fspath);
+            meta.__path__ = fspath;
 
             if ( cb ) cb ( null, metaType, meta );
         }.bind(this));
@@ -153,7 +195,7 @@ Editor.registerPanel( 'inspector.panel', {
     _onMetaRevert: function ( event ) {
         event.stopPropagation();
 
-        var id = this._curTarget.uuid;
+        var id = event.detail.uuid;
 
         //
         this._loadMeta( id, function ( err, metaType, meta ) {
@@ -161,7 +203,7 @@ Editor.registerPanel( 'inspector.panel', {
                 Editor.error( 'Failed to load meta %s, Message: %s', id, err.stack);
                 return;
             }
-            this.inspect( meta.uuid, metaType, meta );
+            this.inspect( metaType, meta.uuid, meta );
         }.bind(this));
     },
 
@@ -182,46 +224,46 @@ Editor.registerPanel( 'inspector.panel', {
     },
 
     'selection:activated': function ( type, id ) {
-        this._selectID = id;
-
-        //
-        if ( !id ) {
-            if ( this._selectType === type ) {
-                this._removeContent();
-            }
-            return;
-        }
-
-        //
-        this._selectType = type;
-
-        //
-        if ( type === 'asset' ) {
-            this._loadMeta( id, function ( err, metaType, meta ) {
-                if ( err ) {
-                    Editor.error( 'Failed to load meta %s, Message: %s', id, err.stack);
-                    return;
-                }
-                this.inspect( meta.uuid, metaType, meta );
-            }.bind(this));
-
-            return;
-        }
-
-        //
-        if ( type === 'node' ) {
-            Editor.sendToPanel('scene.panel', 'scene:query-node', id );
-
-            return;
-        }
+        this.startInspect( type, id );
     },
 
     'scene:reply-query-node': function ( nodeInfo ) {
-        // rebuild target
-        Utils.buildNode( nodeInfo.value, nodeInfo.value.__type__, nodeInfo.types );
-        var target = nodeInfo.value;
+        var node = nodeInfo.value;
+        var id = node.id;
+        var type = node.__type__;
+        var clsList = nodeInfo.types;
 
-        this.inspect( target.id.value, target.__type__, target );
+        //
+        if ( this._selectType !== 'node' || this._selectID !== id )
+            return;
+
+        // rebuild target
+        Utils.buildNode( node, type, clsList );
+
+        // if current inspector is node-inspector and have the same id
+        if ( this._curInspector &&
+             this._curInspector._type === 'node' &&
+             this._curInspector.target.id.value === id
+           )
+        {
+            var delta = _diffpatcher.diff( this._curInspector.target, node );
+            if ( delta ) {
+                this._curInspector._rebuilding = true;
+                for ( var p in delta ) {
+                    this._curInspector.set( 'target.' + p, node[p] );
+                }
+                this._curInspector._rebuilding = false;
+            }
+        }
+        else {
+            this.inspect( type, id, node );
+        }
+
+        //
+        this._queryID = this.async( function () {
+            this._queryID = null;
+            Editor.sendToPanel('scene.panel', 'scene:query-node', id );
+        }, 100 );
     },
 });
 

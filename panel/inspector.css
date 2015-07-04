@@ -2,6 +2,11 @@
     @apply(--layout-vertical);
 }
 
+.select-type {
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
 #content {
     position: relative;
     overflow-x: hidden;
