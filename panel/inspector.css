@@ -21,3 +21,27 @@
 
     pointer-events: none;
 }
+
+editor-toolbar {
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 5px;
+}
+
+.title {
+    font-weight: bold;
+}
+
+i.uninspect {
+    font-size: 14px;
+}
+
+i.inspecting {
+    font-size: 14px;
+    color: #0f0;
+}
+
+i.connecting {
+    font-size: 14px;
+    color: #f90;
+}

@@ -33,6 +33,12 @@ Editor.registerPanel( 'inspector.panel', {
             type: Boolean,
             value: false,
         },
+
+        inspectState: {
+            type: String,
+            value: 'uninspect',
+            readOnly: true,
+        },
     },
 
     ready: function () {
@@ -43,6 +49,7 @@ Editor.registerPanel( 'inspector.panel', {
 
     reset: function () {
         this._curInspector = null;
+        this._inspectType = '';
         this._selectID = '';
         this._selectType = '';
     },
@@ -55,6 +62,8 @@ Editor.registerPanel( 'inspector.panel', {
             }
             return;
         }
+
+        this._setInspectState('connecting');
 
         //
         this._selectType = type;
@@ -81,6 +90,7 @@ Editor.registerPanel( 'inspector.panel', {
     },
 
     inspect: function ( type, id, obj ) {
+        this._inspectType = type;
         this._loadInspector ( type, function ( err, element ) {
             if ( this._selectID !== id )
                 return;
@@ -123,6 +133,7 @@ Editor.registerPanel( 'inspector.panel', {
 
                 //
                 this._curInspector = element;
+                this._setInspectState('inspecting');
             }
         }.bind(this));
     },
@@ -130,6 +141,7 @@ Editor.registerPanel( 'inspector.panel', {
     uninspect: function () {
         this.reset();
         this._removeContent();
+        this._setInspectState('uninspect');
     },
 
     _removeContent: function () {
@@ -356,6 +368,12 @@ Editor.registerPanel( 'inspector.panel', {
         }
     },
 
+    'scene:reloading': function () {
+        if ( this._curInspector && this._curInspector._type === 'node' ) {
+            this.uninspect();
+        }
+    },
+
     _queryNodeAfter: function ( nodeID, timeout ) {
         if ( this._queryID ) {
             this.cancelAsync(this._queryID);
@@ -366,6 +384,15 @@ Editor.registerPanel( 'inspector.panel', {
             Editor.sendToPanel('scene.panel', 'scene:query-node', id, nodeID );
         }, timeout );
         this._queryID = id;
+    },
+
+    _inspectState: function ( state ) {
+        switch (state) {
+            case 'connecting': return 'fa fa-eye connecting';
+            case 'inspecting': return 'fa fa-eye inspecting';
+            case 'uninspect': return 'fa fa-eye-slash uninspect';
+        }
+        return 'fa fa-eye-slash uninspect';
     },
 });
 

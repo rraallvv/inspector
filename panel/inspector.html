@@ -8,6 +8,11 @@
     <template>
         <div id="content" class="flex-1">
         </div>
+        <editor-toolbar>
+            <span class="title">{{_inspectType}}</span>
+            <span class="flex-1"></span>
+            <i class$="{{_inspectState(inspectState)}}"></i>
+        </editor-toolbar>
         <div id="highlightBorder" class="highlight fit" hidden="{{!dropAccepted}}"></div>
     </template>
 </dom-module>

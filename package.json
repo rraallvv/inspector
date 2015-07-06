@@ -24,7 +24,8 @@
       "min-width": 240,
       "messages": [
         "selection:activated",
-        "scene:reply-query-node"
+        "scene:reply-query-node",
+        "scene:reloading"
       ],
       "profiles": {
         "local": {
