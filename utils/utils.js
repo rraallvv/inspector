@@ -64,8 +64,14 @@ var normalizePath = function ( path ) {
     return result.join('.');
 };
 
+var isMixinPath = function ( path ) {
+    path = path.replace( /^target\./, '' );
+    return /^__mixins__\.\d+\./.test(path);
+};
+
 module.exports = {
     buildNode: buildNode,
     normalizePath: normalizePath,
+    isMixinPath: isMixinPath,
 };
 

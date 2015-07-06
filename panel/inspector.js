@@ -100,8 +100,9 @@ Editor.registerPanel( 'inspector.panel', {
                         element.dirty = true;
                         Editor.sendToPanel('scene.panel', 'scene:node-set-property',
                                            id,
-                                           Utils.normalizePath(event.detail.path, 'target'),
-                                           event.detail.value
+                                           Utils.normalizePath(event.detail.path),
+                                           event.detail.value,
+                                           Utils.isMixinPath(event.detail.path)
                                           );
                     });
                 }
