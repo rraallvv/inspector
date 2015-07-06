@@ -402,15 +402,18 @@ Editor.registerPanel( 'inspector.panel', {
 
     _patchAt: function ( path, delta ) {
         if ( Array.isArray(delta) ) {
-            var lastValueIdx = path.lastIndexOf( '.value' );
-            var obj, objPath, subPath;
-            if ( lastValueIdx + 6 !== path.length ) {
-                objPath = path.substring(0, lastValueIdx + 6);
-                subPath = path.substring( lastValueIdx + 7 );
-                obj = {};
-                var cur = this._curInspector.get(objPath);
-                for ( var k in cur ) {
-                    obj[k] = cur[k];
+            var lastValueIdx, obj, objPath, subPath;
+
+            if ( path !== 'target.__mixins__' ) {
+                lastValueIdx = path.lastIndexOf( '.value' );
+                if ( lastValueIdx + 6 !== path.length ) {
+                    objPath = path.substring(0, lastValueIdx + 6);
+                    subPath = path.substring( lastValueIdx + 7 );
+                    obj = {};
+                    var cur = this._curInspector.get(objPath);
+                    for ( var k in cur ) {
+                        obj[k] = cur[k];
+                    }
                 }
             }
 
