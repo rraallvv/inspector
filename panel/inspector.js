@@ -10,17 +10,34 @@ var _diffpatcher = DiffPatch.create({});
 Editor.registerPanel( 'inspector.panel', {
     is: 'editor-inspector',
 
+    behaviors: [EditorUI.droppable],
+
+    hostAttributes: {
+        'droppable': 'asset',
+        'single-drop': true,
+    },
+
     listeners: {
         'meta-revert': '_onMetaRevert',
         'meta-apply': '_onMetaApply',
         'resize': '_onResize',
         'panel-show': '_onPanelShow',
+        'dragover': '_onDragOver',
+        'drop-area-enter': '_onDropAreaEnter',
+        'drop-area-leave': '_onDropAreaLeave',
+        'drop-area-accept': '_onDropAreaAccept',
     },
 
     properties: {
+        dropAccepted: {
+            type: Boolean,
+            value: false,
+        },
     },
 
     ready: function () {
+        this._initDroppable(this);
+
         this.reset();
     },
 
@@ -223,6 +240,81 @@ Editor.registerPanel( 'inspector.panel', {
         if ( this._curInspector && this._curInspector.resize )
             this._curInspector.resize();
     },
+
+    // drag & drop
+
+    _onDragOver: function ( event ) {
+        event.preventDefault();
+
+        if ( !this._curInspector ||
+             this._curInspector._type !== 'node' )
+        {
+            return;
+        }
+
+        //
+        event.stopPropagation();
+
+        //
+        if ( this.dropAccepted ) {
+            EditorUI.DragDrop.updateDropEffect(event.dataTransfer, 'copy');
+        }
+        else {
+            EditorUI.DragDrop.updateDropEffect(event.dataTransfer, 'none');
+        }
+    },
+
+    _onDropAreaEnter: function ( event ) {
+        event.stopPropagation();
+
+        if ( !this._curInspector ||
+             this._curInspector._type !== 'node' )
+        {
+            return;
+        }
+
+        var dragItems = event.detail.dragItems;
+        Editor.assetdb.queryInfoByUuid( dragItems[0], function ( info ) {
+            if ( info['meta-type'] === 'javascript' ) {
+                this.dropAccepted = true;
+                EditorUI.DragDrop.allowDrop( event.detail.dataTransfer, true );
+            }
+        }.bind(this));
+    },
+
+    _onDropAreaLeave: function ( event ) {
+        event.stopPropagation();
+
+        if ( !this._curInspector ||
+             this._curInspector._type !== 'node' )
+        {
+            return;
+        }
+
+        this.dropAccepted = false;
+    },
+
+    _onDropAreaAccept: function ( event ) {
+        event.stopPropagation();
+
+        if ( !this._curInspector ||
+             this._curInspector._type !== 'node' )
+        {
+            return;
+        }
+
+        this.dropAccepted = false;
+        Editor.Selection.cancel();
+
+        //
+        var dragItems = event.detail.dragItems;
+        var uuid = dragItems[0];
+        Editor.sendToPanel('scene.panel', 'scene:node-mixin',
+                           this._selectID,
+                           uuid
+                          );
+    },
+
 
     'selection:activated': function ( type, id ) {
         this.startInspect( type, id );
