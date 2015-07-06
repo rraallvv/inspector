@@ -354,9 +354,7 @@ Editor.registerPanel( 'inspector.panel', {
             var delta = _diffpatcher.diff( this._curInspector.target, node );
             if ( delta ) {
                 this._curInspector._rebuilding = true;
-                for ( var p in delta ) {
-                    this._curInspector.set( 'target.' + p, node[p] );
-                }
+                this._applyPatch(delta, node);
                 this._curInspector._rebuilding = false;
             }
 
@@ -393,6 +391,69 @@ Editor.registerPanel( 'inspector.panel', {
             case 'uninspect': return 'fa fa-eye-slash uninspect';
         }
         return 'fa fa-eye-slash uninspect';
+    },
+
+    _applyPatch: function ( delta, node ) {
+        var curPath = 'target';
+        for ( var p in delta ) {
+            this._patchAt( curPath + '.' + p, delta[p] );
+        }
+    },
+
+    _patchAt: function ( path, delta ) {
+        if ( Array.isArray(delta) ) {
+            var lastValueIdx = path.lastIndexOf( '.value' );
+            var obj, objPath, subPath;
+            if ( lastValueIdx + 6 !== path.length ) {
+                objPath = path.substring(0, lastValueIdx + 6);
+                subPath = path.substring( lastValueIdx + 7 );
+                obj = {};
+                var cur = this._curInspector.get(objPath);
+                for ( var k in cur ) {
+                    obj[k] = cur[k];
+                }
+            }
+
+            // new
+            if ( delta.length === 1 ) {
+                if ( obj ) {
+                    obj[subPath] = delta[0];
+                    this._curInspector.set( objPath, obj );
+                }
+                else {
+                    this._curInspector.set( path, delta[0] );
+                }
+            }
+            // change
+            else if ( delta.length === 2 ) {
+                if ( obj ) {
+                    obj[subPath] = delta[1];
+                    this._curInspector.set( objPath, obj );
+                }
+                else {
+                    this._curInspector.set( path, delta[1] );
+                }
+            }
+            // delete
+            else if ( delta.length === 3 ) {
+                if ( obj ) {
+                    delete obj[subPath];
+                    this._curInspector.set( objPath, obj );
+                }
+                else {
+                    this._curInspector.set( path, undefined );
+                }
+            }
+        }
+        // array
+        else if ( delta._t === 'a' ) {
+        }
+        // object
+        else {
+            for ( var p in delta ) {
+                this._patchAt( path + '.' + p, delta[p] );
+            }
+        }
     },
 });
 
