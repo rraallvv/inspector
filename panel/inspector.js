@@ -49,12 +49,6 @@ Editor.registerPanel( 'inspector.panel', {
 
     startInspect: function ( type, id ) {
         //
-        if ( this._queryID ) {
-            this.cancelAsync(this._queryID);
-            this._queryID = null;
-        }
-
-        //
         if ( !id ) {
             if ( this._selectType === type ) {
                 this.uninspect();
@@ -81,8 +75,7 @@ Editor.registerPanel( 'inspector.panel', {
 
         //
         if ( type === 'node' ) {
-            Editor.sendToPanel('scene.panel', 'scene:query-node', id );
-
+            this._queryNodeAfter( id, 0 );
             return;
         }
     },
@@ -122,6 +115,7 @@ Editor.registerPanel( 'inspector.panel', {
                                            Utils.isMixinPath(event.detail.path)
                                           );
                     });
+                    this._queryNodeAfter( id, 100 );
                 }
 
                 var contentDOM = Polymer.dom(this.$.content);
@@ -320,15 +314,21 @@ Editor.registerPanel( 'inspector.panel', {
         this.startInspect( type, id );
     },
 
-    'scene:reply-query-node': function ( nodeInfo ) {
+    'scene:reply-query-node': function ( queryID, nodeInfo ) {
         var node = nodeInfo.value;
         var id = node.id;
         var type = node.__type__;
         var clsList = nodeInfo.types;
 
         //
-        if ( this._selectType !== 'node' || this._selectID !== id )
+        if ( this._queryID !== queryID ) {
             return;
+        }
+
+        //
+        if ( this._selectType !== 'node' || this._selectID !== id ) {
+            return;
+        }
 
         // rebuild target
         Utils.buildNode( node, type, clsList );
@@ -347,16 +347,25 @@ Editor.registerPanel( 'inspector.panel', {
                 }
                 this._curInspector._rebuilding = false;
             }
+
+            //
+            this._queryNodeAfter( id, 100 );
         }
         else {
             this.inspect( type, id, node );
         }
+    },
 
-        //
-        this._queryID = this.async( function () {
+    _queryNodeAfter: function ( nodeID, timeout ) {
+        if ( this._queryID ) {
+            this.cancelAsync(this._queryID);
             this._queryID = null;
-            Editor.sendToPanel('scene.panel', 'scene:query-node', id );
-        }, 100 );
+        }
+
+        var id = this.async( function () {
+            Editor.sendToPanel('scene.panel', 'scene:query-node', id, nodeID );
+        }, timeout );
+        this._queryID = id;
     },
 });
 
