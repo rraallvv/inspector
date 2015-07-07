@@ -172,11 +172,14 @@ Editor.registerPanel( 'inspector.panel', {
             return;
         }
 
+        Editor._importing = true; // TEMP HACK: please ref scene._popIpc
         Polymer.Base.importHref( url, function ( event ) {
             _url2imported[url] = true;
             var el = document.createElement( prefix + '-inspector');
+            Editor._importing = false; // TEMP HACK: please ref scene._popIpc
             if ( cb ) cb ( null, el );
         }, function ( err ) {
+            Editor._importing = false; // TEMP HACK: please ref scene._popIpc
             if ( cb ) cb ( err );
         });
     },
