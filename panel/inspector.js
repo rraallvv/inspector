@@ -184,7 +184,7 @@ Editor.registerPanel( 'inspector.panel', {
         });
     },
 
-    _loadMeta ( id, cb ) {
+    _loadMeta: function ( id, cb ) {
         if ( id.indexOf('mount-') === 0 ) {
             if ( cb ) cb ( null, 'mount', {
                 __name__: id.substring(6),
