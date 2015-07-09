@@ -331,6 +331,9 @@ Editor.registerPanel( 'inspector.panel', {
 
     'scene:reply-query-node': function ( queryID, nodeInfo ) {
         var node = nodeInfo.value;
+        if ( !node )
+            return;
+
         var id = node.id;
         var type = node.__type__;
         var clsList = nodeInfo.types;
