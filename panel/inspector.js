@@ -54,6 +54,10 @@ Editor.registerPanel( 'inspector.panel', {
         this._selectType = '';
     },
 
+    refresh: function () {
+        this.startInspect( this._selectType, this._selectID );
+    },
+
     startInspect: function ( type, id ) {
         //
         if ( !id ) {
@@ -381,6 +385,14 @@ Editor.registerPanel( 'inspector.panel', {
         if ( this._curInspector && this._curInspector._type === 'node' ) {
             this.uninspect();
         }
+    },
+
+    'asset-db:asset-moved': function ( info ) {
+        if ( this._selectType !== 'asset' || this._selectID !== info.uuid )
+            return;
+
+        // refresh
+        this.refresh();
     },
 
     _queryNodeAfter: function ( nodeID, timeout ) {
