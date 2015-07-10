@@ -253,6 +253,11 @@ Editor.registerPanel( 'inspector.panel', {
     // drag & drop
 
     _onDragOver: function ( event ) {
+        var type = EditorUI.DragDrop.type(event.dataTransfer);
+        if ( type !== 'asset' ) {
+            return;
+        }
+
         event.preventDefault();
 
         if ( !this._curInspector ||
