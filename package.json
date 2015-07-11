@@ -26,7 +26,7 @@
         "selection:activated",
         "scene:reply-query-node",
         "scene:reloading",
-        "asset-db:asset-moved"
+        "asset-db:assets-moved"
       ],
       "profiles": {
         "local": {

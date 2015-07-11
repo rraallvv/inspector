@@ -387,12 +387,17 @@ Editor.registerPanel( 'inspector.panel', {
         }
     },
 
-    'asset-db:asset-moved': function ( info ) {
-        if ( this._selectType !== 'asset' || this._selectID !== info.uuid )
+    'asset-db:assets-moved': function ( results ) {
+        if ( this._selectType !== 'asset' )
             return;
 
-        // refresh
-        this.refresh();
+        // refresh if we have selectID
+        for ( var i = 0; i < results.length; ++i ) {
+            if ( this._selectID === results[i].uuid ) {
+                this.refresh();
+                break;
+            }
+        }
     },
 
     _queryNodeAfter: function ( nodeID, timeout ) {
