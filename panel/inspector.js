@@ -241,7 +241,10 @@ Editor.registerPanel( 'inspector.panel', {
     _onMetaApply: function ( event ) {
         event.stopPropagation();
 
-        Editor.info('@jwu please finish this by sending assetdb:apply(meta)');
+        var uuid = this._curInspector.target.uuid;
+        var jsonString = JSON.stringify(this._curInspector.target);
+
+        Editor.sendToCore( 'asset-db:save-meta', uuid, jsonString );
     },
 
     _onResize: function ( event ) {
@@ -400,6 +403,12 @@ Editor.registerPanel( 'inspector.panel', {
         }
     },
 
+    'asset-db:meta-saved': function ( result ) {
+        if ( this._curInspector && this._selectID === result.uuid ) {
+            this.refresh();
+        }
+    },
+
     _queryNodeAfter: function ( nodeID, timeout ) {
         if ( this._queryID ) {
             this.cancelAsync(this._queryID);
@@ -478,6 +487,11 @@ Editor.registerPanel( 'inspector.panel', {
         }
         // array
         else if ( delta._t === 'a' ) {
+            for ( var idx in delta ) {
+                if ( idx !== '_t' ) {
+                    this._patchAt( path + '.' + idx, delta[idx] );
+                }
+            }
         }
         // object
         else {
