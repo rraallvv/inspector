@@ -243,7 +243,7 @@ Editor.registerPanel( 'inspector.panel', {
         var uuid = this._curInspector.target.uuid;
         var jsonString = JSON.stringify(this._curInspector.target);
 
-        Editor.sendToCore( 'asset-db:save-meta', uuid, jsonString );
+        Editor.assetdb.saveMeta( uuid, jsonString );
     },
 
     _onResize: function ( event ) {
