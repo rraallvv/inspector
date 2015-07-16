@@ -128,7 +128,8 @@ Editor.registerPanel( 'inspector.panel', {
                                            event.detail.value,
                                            Utils.isMixinPath(event.detail.path)
                                           );
-                    });
+                        this._queryNodeAfter( id, 100 );
+                    }.bind(this));
                     this._queryNodeAfter( id, 100 );
                 }
 
