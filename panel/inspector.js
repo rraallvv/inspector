@@ -296,7 +296,10 @@ Editor.registerPanel( 'inspector.panel', {
 
         var dragItems = event.detail.dragItems;
         Editor.assetdb.queryInfoByUuid( dragItems[0], function ( info ) {
-            if ( info['meta-type'] === 'javascript' ) {
+            var metaType = info['meta-type'];
+            if ( metaType === 'javascript' ||
+                 metaType === 'coffeescript'
+               ) {
                 this.dropAccepted = true;
                 EditorUI.DragDrop.allowDrop( event.detail.dataTransfer, true );
             }
