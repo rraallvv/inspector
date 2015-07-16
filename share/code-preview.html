@@ -1,0 +1,42 @@
+<dom-module id="inspector-code-preview">
+    <link rel="import" type="css" href="code-preview.paraiso.dark.css">
+
+    <style>
+        :host {
+            position: relative;
+            overflow: auto;
+
+            border: 1px solid black;
+            box-shadow: inset 0 0 8px 2px rgba(0,0,0,0.2);
+            background: #333;
+        }
+
+        @font-face {
+            font-family: 'DejaVu Sans Mono';
+            src: url('app://canvas-studio/static/fonts/DejaVuSansMono.ttf');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        pre {
+            margin: 0px;
+            padding: 10px;
+            font-size: 14px;
+            font-family: 'DejaVu Sans Mono';
+
+            -webkit-user-select: text;
+            cursor: auto;
+        }
+
+        pre * {
+            -webkit-user-select: text;
+        }
+    </style>
+
+    <template>
+        <pre id="code">
+        </pre>
+    </template>
+</dom-module>
+
+<script type="text/javascript" src="code-preview.js"></script>
