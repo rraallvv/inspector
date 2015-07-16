@@ -12,18 +12,25 @@ Polymer({
             value: '',
             observer: '_pathChanged'
         },
+
+        mtime: {
+            type: Number,
+            value: 0,
+        },
     },
 
     _pathChanged: function () {
         if ( !this.path )
             return;
 
+        var Fs = require('fire-fs');
+
         this._image = new Image();
         this._image.onload = function () {
             this.info = this._image.width + " x " + this._image.height;
             this.resize();
         }.bind(this);
-        this._image.src = this.path;
+        this._image.src = this.path + '?' + this.mtime;
     },
 
     resize: function () {

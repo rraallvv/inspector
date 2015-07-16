@@ -198,15 +198,13 @@ Editor.registerPanel( 'inspector.panel', {
             return;
         }
 
-        Editor.assetdb.queryPathByUuid( id, function ( fspath ) {
-            if ( !fspath ) {
+        Editor.assetdb.queryMetaInfoByUuid( id, function ( info ) {
+            if ( !info ) {
                 if ( cb ) cb ( new Error('Can not find asset path by uuid ' + id) );
                 return;
             }
 
-            var metapath = fspath + '.meta';
-            jsonObj = JSON.parse(Fs.readFileSync(metapath));
-
+            var jsonObj = JSON.parse(info.json);
             var metaType = jsonObj['meta-type'];
             var metaCtor = Editor.metas[metaType];
             if ( !metaCtor ) {
@@ -216,8 +214,9 @@ Editor.registerPanel( 'inspector.panel', {
 
             var meta = new metaCtor();
             meta.deserialize(jsonObj);
-            meta.__name__ = Path.basenameNoExt(fspath);
-            meta.__path__ = fspath;
+            meta.__name__ = Path.basenameNoExt(info.assetPath);
+            meta.__path__ = info.assetPath;
+            meta.__mtime__ = info.assetMtime;
 
             if ( cb ) cb ( null, metaType, meta );
         }.bind(this));
