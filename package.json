@@ -27,6 +27,7 @@
         "scene:reply-query-node",
         "scene:reloading",
         "asset-db:assets-moved",
+        "asset-db:asset-changed",
         "asset-db:meta-saved"
       ],
       "profiles": {

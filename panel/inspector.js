@@ -403,6 +403,12 @@ Editor.registerPanel( 'inspector.panel', {
         }
     },
 
+    'asset-db:asset-changed': function ( result ) {
+        if ( this._curInspector && this._selectID === result.uuid ) {
+            this.refresh();
+        }
+    },
+
     'asset-db:meta-saved': function ( result ) {
         if ( this._curInspector && this._selectID === result.uuid ) {
             this.refresh();
