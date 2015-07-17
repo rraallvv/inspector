@@ -5,7 +5,15 @@ var DiffPatch = require('jsondiffpatch');
 var Utils = Editor.require('packages://inspector/utils/utils');
 
 var _url2imported = {};
-var _diffpatcher = DiffPatch.create({});
+var _diffpatcher = DiffPatch.create({
+    // objcectHash: function ( obj, index ) {
+    //     // try to find an id property, otherwise just use the index in the array
+    //     return obj.__type__ || '$$index:' + index;
+    // },
+    arrays: {
+        detectMove: true
+    }
+});
 
 Editor.registerPanel( 'inspector.panel', {
     is: 'editor-inspector',
@@ -18,14 +26,15 @@ Editor.registerPanel( 'inspector.panel', {
     },
 
     listeners: {
-        'meta-revert': '_onMetaRevert',
-        'meta-apply': '_onMetaApply',
         'resize': '_onResize',
         'panel-show': '_onPanelShow',
         'dragover': '_onDragOver',
         'drop-area-enter': '_onDropAreaEnter',
         'drop-area-leave': '_onDropAreaLeave',
         'drop-area-accept': '_onDropAreaAccept',
+        'meta-revert': '_onMetaRevert',
+        'meta-apply': '_onMetaApply',
+        'node-unmixin': '_onNodeUnmixin',
     },
 
     properties: {
@@ -247,6 +256,20 @@ Editor.registerPanel( 'inspector.panel', {
         Editor.assetdb.saveMeta( uuid, jsonString );
     },
 
+    _onNodeUnmixin: function ( event ) {
+        event.stopPropagation();
+
+        Editor.sendToPanel('scene.panel', 'scene:node-unmixin',
+                           this._selectID,
+                           event.detail.className
+                          );
+        // FIXME, HACK
+        var selectType = this._selectType;
+        var selectID = this._selectID;
+        this.uninspect();
+        this.startInspect( selectType, selectID );
+    },
+
     _onResize: function ( event ) {
         if ( this._curInspector && this._curInspector.resize )
             this._curInspector.resize();
@@ -447,6 +470,8 @@ Editor.registerPanel( 'inspector.panel', {
     },
 
     _patchAt: function ( path, delta ) {
+        var k;
+
         if ( Array.isArray(delta) ) {
             var lastValueIdx, obj, objPath, subPath;
 
@@ -457,7 +482,7 @@ Editor.registerPanel( 'inspector.panel', {
                     subPath = path.substring( lastValueIdx + 7 );
                     obj = {};
                     var cur = this._curInspector.get(objPath);
-                    for ( var k in cur ) {
+                    for ( k in cur ) {
                         obj[k] = cur[k];
                     }
                 }
@@ -496,16 +521,52 @@ Editor.registerPanel( 'inspector.panel', {
         }
         // array
         else if ( delta._t === 'a' ) {
-            for ( var idx in delta ) {
-                if ( idx !== '_t' ) {
-                    this._patchAt( path + '.' + idx, delta[idx] );
+            for ( k in delta ) {
+                if ( k === '_t' ) {
+                    continue;
+                }
+
+                var idx, innerDelta;
+
+                if ( k[0] === '_' ) {
+                    innerDelta = delta[k];
+                    if ( Array.isArray(innerDelta) ) {
+                        idx = parseInt(k.substring(1));
+
+                        if ( innerDelta.length === 3 ) {
+                            // move ( 3 is the magic number )
+                            if ( innerDelta[2] === 3 ) {
+                                // TODO: ??
+                            }
+                            // delete
+                            else if ( innerDelta[2] === 0 ) {
+                                this._curInspector.splice( path, idx, 1 );
+                            }
+                        }
+                    }
+                }
+                // new inserted
+                else {
+                    innerDelta = delta[k];
+
+                    if ( Array.isArray(innerDelta) ) {
+                        // new
+                        if ( innerDelta.length === 1 ) {
+                            idx = parseInt(k);
+                            this._curInspector.splice( path, idx, 0, innerDelta[0] );
+                        }
+                    }
+                    // nested apply
+                    else {
+                        this._patchAt( path + '.' + k, delta[k] );
+                    }
                 }
             }
         }
         // object
         else {
-            for ( var p in delta ) {
-                this._patchAt( path + '.' + p, delta[p] );
+            for ( k in delta ) {
+                this._patchAt( path + '.' + k, delta[k] );
             }
         }
     },

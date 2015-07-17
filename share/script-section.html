@@ -3,7 +3,10 @@
     </style>
 
     <template>
-        <editor-section text="[[target.__type__]]">
+        <editor-section closeable
+            text="[[target.__type__]]"
+            on-close="_onClose"
+            >
             <template is="dom-repeat" items="{{_props(target)}}">
                 <editor-prop
                     name="[[item.name]]"
@@ -56,6 +59,14 @@
                 this.notifyPath('target.' + propEL.name + '.value',
                                 event.detail.value );
             }
+        },
+
+        _onClose: function ( event ) {
+            event.stopPropagation();
+
+            this.fire( 'node-unmixin', {
+                className: this.target.__type__,
+            });
         },
     });
 </script>
