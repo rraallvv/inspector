@@ -28,8 +28,16 @@
             cursor: auto;
         }
 
+        pre::selection {
+            background: #007acc;
+        }
+
         pre * {
             -webkit-user-select: text;
+        }
+
+        pre *::selection {
+            background: #007acc;
         }
     </style>
 
