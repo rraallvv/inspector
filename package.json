@@ -29,12 +29,7 @@
         "asset-db:assets-moved",
         "asset-db:asset-changed",
         "asset-db:meta-saved"
-      ],
-      "profiles": {
-        "local": {
-          "collapses-status": []
-        }
-      }
+      ]
     }
   },
   "tests": [
