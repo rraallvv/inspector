@@ -39,10 +39,11 @@
                 if ( p === '__type__' )
                     continue;
 
-                if ( p.indexOf('_') !== -1 )
+                var prop = target[p];
+                if ( prop.attrs.visible === false )
                     continue;
 
-                props.push ( target[p] );
+                props.push ( prop );
             }
             return props;
         },
