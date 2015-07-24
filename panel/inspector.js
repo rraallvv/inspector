@@ -464,6 +464,13 @@ Editor.registerPanel( 'inspector.panel', {
         }
     },
 
+    'asset-db:asset-uuid-changed': function ( result ) {
+        if ( this._curInspector && this._selectID === result.oldUuid ) {
+            this._selectID = result.uuid;
+            this.refresh();
+        }
+    },
+
     _queryNodeAfter: function ( nodeID, timeout ) {
         if ( this._queryID ) {
             this.cancelAsync(this._queryID);
