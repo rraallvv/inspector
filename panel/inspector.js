@@ -93,12 +93,12 @@ Editor.registerPanel( 'inspector.panel', {
         this._inspectID = this.async ( function () {
             //
             if ( type === 'asset' ) {
-                this._loadMeta( id, function ( err, metaType, meta ) {
+                this._loadMeta( id, function ( err, assetType, meta ) {
                     if ( err ) {
                         Editor.error( 'Failed to load meta %s, Message: %s', id, err.stack);
                         return;
                     }
-                    this.inspect( metaType, meta.uuid, meta );
+                    this.inspect( assetType, meta.uuid, meta );
                 }.bind(this));
 
                 return;
@@ -245,10 +245,10 @@ Editor.registerPanel( 'inspector.panel', {
             }
 
             var jsonObj = JSON.parse(info.json);
-            var metaType = jsonObj['meta-type'];
-            var metaCtor = Editor.metas[metaType];
+            var assetType = jsonObj['asset-type'];
+            var metaCtor = Editor.metas[assetType];
             if ( !metaCtor ) {
-                if ( cb ) cb ( new Error('Can not find meta by type ' + metaType) );
+                if ( cb ) cb ( new Error('Can not find meta by type ' + assetType) );
                 return;
             }
 
@@ -258,7 +258,7 @@ Editor.registerPanel( 'inspector.panel', {
             meta.__path__ = info.assetPath;
             meta.__mtime__ = info.assetMtime;
 
-            if ( cb ) cb ( null, metaType, meta );
+            if ( cb ) cb ( null, assetType, meta );
         }.bind(this));
     },
 
@@ -268,12 +268,12 @@ Editor.registerPanel( 'inspector.panel', {
         var id = event.detail.uuid;
 
         //
-        this._loadMeta( id, function ( err, metaType, meta ) {
+        this._loadMeta( id, function ( err, assetType, meta ) {
             if ( err ) {
                 Editor.error( 'Failed to load meta %s, Message: %s', id, err.stack);
                 return;
             }
-            this.inspect( metaType, meta.uuid, meta );
+            this.inspect( assetType, meta.uuid, meta );
         }.bind(this));
     },
 
@@ -349,9 +349,9 @@ Editor.registerPanel( 'inspector.panel', {
 
         var dragItems = event.detail.dragItems;
         Editor.assetdb.queryInfoByUuid( dragItems[0], function ( info ) {
-            var metaType = info['meta-type'];
-            if ( metaType === 'javascript' ||
-                 metaType === 'coffeescript'
+            var assetType = info.type;
+            if ( assetType === 'javascript' ||
+                 assetType === 'coffeescript'
                ) {
                 this.dropAccepted = true;
                 EditorUI.DragDrop.allowDrop( event.detail.dataTransfer, true );
