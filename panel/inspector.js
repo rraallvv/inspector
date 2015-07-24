@@ -464,12 +464,6 @@ Editor.registerPanel( 'inspector.panel', {
         }
     },
 
-    'asset-db:meta-saved': function ( result ) {
-        if ( this._curInspector && this._selectID === result.uuid ) {
-            this.refresh();
-        }
-    },
-
     _queryNodeAfter: function ( nodeID, timeout ) {
         if ( this._queryID ) {
             this.cancelAsync(this._queryID);
