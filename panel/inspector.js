@@ -169,7 +169,7 @@ Editor.registerPanel( 'inspector.panel', {
         this._setInspectState('uninspect');
     },
 
-    showLoaderAfter ( timeout ) {
+    showLoaderAfter: function ( timeout ) {
         if ( this.$.loader.hidden === false )
             return;
 
@@ -182,7 +182,7 @@ Editor.registerPanel( 'inspector.panel', {
         }, timeout);
     },
 
-    hideLoader () {
+    hideLoader: function () {
         this.cancelAsync(this._loaderID);
         this._loaderID = null;
         this.$.loader.hidden = true;
