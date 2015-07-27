@@ -36,7 +36,10 @@ var buildNode = function ( node, type, clsList, useArray ) {
                     delete val.__type__;
                 }
 
-                buildNode( val, valType, clsList );
+                // NOTE: if we don't register the type in ui-property, we will expand it.
+                if ( !Editor.properties[valType.toLowerCase()] ) {
+                    buildNode( val, valType, clsList );
+                }
             }
 
             node[k] = {
@@ -69,9 +72,17 @@ var isMixinPath = function ( path ) {
     return /^__mixins__\.\d+\./.test(path);
 };
 
+var getType = function ( node, path ) {
+    var prop = Editor.JS.getPropertyByPath(node,path);
+    if ( prop )
+        return prop.type;
+    return null;
+};
+
 module.exports = {
     buildNode: buildNode,
     normalizePath: normalizePath,
     isMixinPath: isMixinPath,
+    getType: getType,
 };
 

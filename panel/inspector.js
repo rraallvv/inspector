@@ -141,12 +141,15 @@ Editor.registerPanel( 'inspector.panel', {
                             return;
 
                         element.dirty = true;
-                        Editor.sendToPanel('scene.panel', 'scene:node-set-property',
-                                           id,
-                                           Utils.normalizePath(event.detail.path),
-                                           event.detail.value,
-                                           Utils.isMixinPath(event.detail.path)
-                                          );
+                        var path = Utils.normalizePath(event.detail.path);
+
+                        Editor.sendToPanel('scene.panel', 'scene:node-set-property', {
+                            id: id,
+                            path: path,
+                            type: Utils.getType(obj,path),
+                            value: event.detail.value,
+                            isMixin: Utils.isMixinPath(event.detail.path),
+                        });
                         this._queryNodeAfter( id, 100 );
                     }.bind(this));
                     this._queryNodeAfter( id, 100 );
