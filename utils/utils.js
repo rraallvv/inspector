@@ -37,7 +37,7 @@ var buildNode = function ( node, type, clsList, useArray ) {
                 }
 
                 // NOTE: if we don't register the type in ui-property, we will expand it.
-                if ( !Editor.properties[valType.toLowerCase()] ) {
+                if ( !Editor.properties[valType] ) {
                     buildNode( val, valType, clsList );
                 }
             }
