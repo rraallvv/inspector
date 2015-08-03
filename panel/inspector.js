@@ -146,7 +146,7 @@ Editor.registerPanel( 'inspector.panel', {
                         Editor.sendToPanel('scene.panel', 'scene:node-set-property', {
                             id: id,
                             path: path,
-                            type: Utils.getType(obj,path),
+                            type: Utils.getType(obj,event.detail.path),
                             value: event.detail.value,
                             isMixin: Utils.isMixinPath(event.detail.path),
                         });

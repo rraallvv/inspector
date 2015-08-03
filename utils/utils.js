@@ -52,9 +52,11 @@ var buildNode = function ( node, type, clsList, useArray ) {
     }
 };
 
-var normalizePath = function ( path ) {
+var normalizePath = function ( path, keeyMixin ) {
     path = path.replace( /^target\./, '' );
-    path = path.replace( /^__mixins__\.\d+\./, '' );
+    if ( !keeyMixin ) {
+        path = path.replace( /^__mixins__\.\d+\./, '' );
+    }
     var list = path.split('.');
 
     var result = [];
@@ -73,6 +75,7 @@ var isMixinPath = function ( path ) {
 };
 
 var getType = function ( node, path ) {
+    path = normalizePath(path, true);
     var prop = Editor.JS.getPropertyByPath(node,path);
     if ( prop )
         return prop.type;
