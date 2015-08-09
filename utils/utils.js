@@ -22,10 +22,6 @@ var buildNode = function ( node, type, clsList, useArray ) {
             }
 
             var val = node[k];
-            if ( !val ) {
-                continue;
-            }
-
             var valAttrs;
             var valType;
             if ( clsDef.properties ) {
@@ -34,13 +30,17 @@ var buildNode = function ( node, type, clsList, useArray ) {
             }
 
             // skip the property if visible === false and type not found
-            if ( valAttrs ) {
-                if ( valAttrs.visible === false && !valAttrs.type && !val.__type__ )  {
+            if ( valAttrs && valAttrs.visible === false ) {
+                valType = valAttrs.type;
+                if ( val && typeof val === 'object' && val.__type__ ) {
+                    valType = val.__type__;
+                }
+                if ( !valType ) {
                     continue;
                 }
             }
 
-            if ( typeof val === 'object' ) {
+            if ( val && typeof val === 'object' ) {
                 if ( val.__type__ ) {
                     valType = val.__type__;
                     delete val.__type__;
