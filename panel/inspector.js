@@ -424,7 +424,7 @@ Editor.registerPanel( 'inspector.panel', {
         // if current inspector is node-inspector and have the same id
         if ( this._curInspector &&
              this._curInspector._type === 'node' &&
-             this._curInspector.target.uuid.value === id
+             this._curInspector.target.uuid === id
            )
         {
             var delta = _diffpatcher.diff( this._curInspector.target, node );
