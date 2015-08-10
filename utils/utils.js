@@ -31,7 +31,6 @@ var buildNode = function ( node, type, clsList, useArray ) {
 
             // skip the property if visible === false and type not found
             if ( valAttrs && valAttrs.visible === false ) {
-                valType = valAttrs.type;
                 if ( val && typeof val === 'object' && val.__type__ ) {
                     valType = val.__type__;
                 }
@@ -46,9 +45,18 @@ var buildNode = function ( node, type, clsList, useArray ) {
                     delete val.__type__;
                 }
 
+                // get type-chain for it
+                var valClsDef = clsList[valType];
+                if ( valClsDef ) {
+                    valAttrs.extends = valClsDef.extends;
+                }
+
                 // NOTE: if we don't register the type in ui-property, we will expand it.
-                if ( !Editor.properties[valType] ) {
-                    buildNode( val, valType, clsList );
+                var propType = valAttrs.type;
+                if ( !propType ) propType = valType;
+
+                if ( !Editor.properties[propType] ) {
+                    buildNode( val, propType, clsList );
                 }
             }
 
