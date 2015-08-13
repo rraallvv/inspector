@@ -141,12 +141,22 @@ Editor.registerPanel( 'inspector.panel', {
                             return;
 
                         element.dirty = true;
-                        var path = Utils.normalizePath(event.detail.path);
+
+                        var path = event.detail.path;
+                        var prop = this._curInspector.get(event.detail.path);
+                        var idx;
+
+                        while ( prop && !prop.attrs ) {
+                            idx = path.lastIndexOf('.');
+                            path = path.substring(0,idx);
+                            prop = this._curInspector.get(path);
+                        }
+                        var subPath = Utils.normalizePath(event.detail.path.substring(idx));
 
                         Editor.sendToPanel('scene.panel', 'scene:node-set-property', {
                             id: id,
-                            path: path,
-                            type: Utils.getType(obj,event.detail.path),
+                            path: prop.path.substring(1) + subPath,
+                            type: prop.type,
                             value: event.detail.value,
                             isMixin: Utils.isMixinPath(event.detail.path),
                         });
@@ -405,7 +415,6 @@ Editor.registerPanel( 'inspector.panel', {
             return;
 
         var id = node.uuid;
-        var type = node.__type__;
         var clsList = nodeInfo.types;
 
         //
@@ -419,7 +428,7 @@ Editor.registerPanel( 'inspector.panel', {
         }
 
         // rebuild target
-        Utils.buildNode( node, type, clsList );
+        Utils.buildNode( node, clsList, '', false );
 
         // if current inspector is node-inspector and have the same id
         if ( this._curInspector &&
@@ -438,7 +447,7 @@ Editor.registerPanel( 'inspector.panel', {
             this._queryNodeAfter( id, 100 );
         }
         else {
-            this.inspect( type, id, node );
+            this.inspect( node.__type__, id, node );
         }
     },
 
