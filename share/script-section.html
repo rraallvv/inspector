@@ -19,6 +19,7 @@
             </template>
         </editor-section>
     </template>
+
 </dom-module>
 
 <script>
@@ -40,7 +41,7 @@
                     continue;
 
                 var prop = target[p];
-                if ( prop.attrs.visible === false )
+                if ( !prop.attrs || prop.attrs.visible === false )
                     continue;
 
                 props.push ( prop );

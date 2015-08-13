@@ -13,6 +13,7 @@ var buildNode = function ( node, type, clsList, useArray ) {
                 continue;
             }
 
+            // process mixins
             if ( k === '__mixins__' ) {
                 var mixins = node[k];
                 for ( var i = 0; i < mixins.length; ++i ) {
@@ -21,30 +22,38 @@ var buildNode = function ( node, type, clsList, useArray ) {
                 continue;
             }
 
+            // get value
             var val = node[k];
+
+            // get attrs
             var valAttrs;
-            var valType;
             if ( clsDef.properties ) {
                 valAttrs = clsDef.properties[k];
-                valType = valAttrs.type;
+            }
+
+            // skip the property if attrs not found
+            if ( !valAttrs )
+                continue;
+
+            // get value type
+            var valType = valAttrs.type;
+            if ( val && typeof val === 'object' && val.__type__ ) {
+                valType = val.__type__;
+                delete val.__type__;
+            }
+
+            // skip the property if it is array and attrs.type not defined
+            if ( Array.isArray(val) && !valAttrs.type ) {
+                continue;
             }
 
             // skip the property if visible === false and type not found
-            if ( valAttrs && valAttrs.visible === false ) {
-                if ( val && typeof val === 'object' && val.__type__ ) {
-                    valType = val.__type__;
-                }
-                if ( !valType ) {
-                    continue;
-                }
+            if ( valAttrs.visible === false && !valType ) {
+                continue;
             }
 
+            //
             if ( val && typeof val === 'object' ) {
-                if ( val.__type__ ) {
-                    valType = val.__type__;
-                    delete val.__type__;
-                }
-
                 // get type-chain for it
                 var valClsDef = clsList[valType];
                 if ( valClsDef ) {
@@ -55,8 +64,17 @@ var buildNode = function ( node, type, clsList, useArray ) {
                 var propType = valAttrs.type;
                 if ( !propType ) propType = valType;
 
-                if ( !Editor.properties[propType] ) {
-                    buildNode( val, propType, clsList );
+                //
+                if ( Array.isArray(val) ) {
+                    valType = 'Array';
+
+                    for ( var j = 0; j < val.length; ++j ) {
+                        buildNode( val[j], propType, clsList );
+                    }
+                } else {
+                    if ( !Editor.properties[propType] ) {
+                        buildNode( val, propType, clsList );
+                    }
                 }
             }
 
