@@ -146,7 +146,7 @@ Editor.registerPanel( 'inspector.panel', {
                         var prop = this._curInspector.get(event.detail.path);
                         var idx;
 
-                        while ( prop && !prop.attrs ) {
+                        while ( prop !== undefined && !prop.attrs ) {
                             idx = path.lastIndexOf('.');
                             path = path.substring(0,idx);
                             prop = this._curInspector.get(path);
@@ -563,7 +563,11 @@ Editor.registerPanel( 'inspector.panel', {
         }
         // array
         else if ( delta._t === 'a' ) {
-            for ( k in delta ) {
+            var keys = Object.keys(delta).sort().reverse();
+            // for ( k in delta ) {
+            for ( var i = 0; i < keys.length; ++i ) {
+                k = keys[i];
+
                 if ( k === '_t' ) {
                     continue;
                 }
