@@ -4,6 +4,8 @@ var Path = require('fire-path');
 var DiffPatch = require('jsondiffpatch');
 var Utils = Editor.require('packages://inspector/utils/utils');
 
+var ARRAY_MOVE = 3;
+
 var _url2imported = {};
 var _diffpatcher = DiffPatch.create({
     // objcectHash: function ( obj, index ) {
@@ -14,6 +16,17 @@ var _diffpatcher = DiffPatch.create({
         detectMove: true
     }
 });
+
+var _compare = {
+    numerically: function(a, b) {
+        return a - b;
+    },
+    numericallyBy: function(name) {
+        return function(a, b) {
+            return a[name] - b[name];
+        };
+    }
+};
 
 Editor.registerPanel( 'inspector.panel', {
     is: 'editor-inspector',
@@ -54,6 +67,11 @@ Editor.registerPanel( 'inspector.panel', {
         this._initDroppable(this);
 
         this.reset();
+
+        var info = Editor.Selection.curGlobalActivate();
+        if ( info ) {
+            this.startInspect( info.type, info.id );
+        }
     },
 
     reset: function () {
@@ -61,6 +79,7 @@ Editor.registerPanel( 'inspector.panel', {
         this._inspectType = '';
         this._selectID = '';
         this._selectType = '';
+
         this.hideLoader();
     },
 
@@ -136,6 +155,12 @@ Editor.registerPanel( 'inspector.panel', {
                     });
                 }
                 else if ( this._selectType === 'node' ) {
+                    element.addEventListener( 'create-prop', function ( event ) {
+                        if ( element._rebuilding )
+                            return;
+
+                    });
+
                     element.addEventListener( 'target-changed', function ( event ) {
                         if ( element._rebuilding )
                             return;
@@ -162,6 +187,7 @@ Editor.registerPanel( 'inspector.panel', {
                         });
                         this._queryNodeAfter( id, 100 );
                     }.bind(this));
+
                     this._queryNodeAfter( id, 100 );
                 }
 
@@ -563,49 +589,67 @@ Editor.registerPanel( 'inspector.panel', {
         }
         // array
         else if ( delta._t === 'a' ) {
-            var keys = Object.keys(delta).sort().reverse();
-            // for ( k in delta ) {
-            for ( var i = 0; i < keys.length; ++i ) {
-                k = keys[i];
+            var toRemove = [];
+            var toInsert = [];
+            var toModify = [];
 
+            for ( k in delta ) {
                 if ( k === '_t' ) {
                     continue;
                 }
 
                 var idx, innerDelta;
+                innerDelta = delta[k];
 
                 if ( k[0] === '_' ) {
-                    innerDelta = delta[k];
-                    if ( Array.isArray(innerDelta) ) {
-                        idx = parseInt(k.substring(1));
-
-                        if ( innerDelta.length === 3 ) {
-                            // move ( 3 is the magic number )
-                            if ( innerDelta[2] === 3 ) {
-                                // TODO: ??
-                            }
-                            // delete
-                            else if ( innerDelta[2] === 0 ) {
-                                this._curInspector.splice( path, idx, 1 );
-                            }
-                        }
+                    // removed item from original array
+                    if (innerDelta[2] === 0 || innerDelta[2] === ARRAY_MOVE) {
+                        toRemove.push(parseInt(k.slice(1), 10));
+                    }
+                } else {
+                    if (innerDelta.length === 1) {
+                        // added item at new array
+                        toInsert.push({
+                            index: parseInt(k, 10),
+                            value: innerDelta[0],
+                        });
+                    } else {
+                        // modified item at new array
+                        toModify.push({
+                            index: parseInt(k, 10),
+                            delta: innerDelta,
+                        });
                     }
                 }
-                // new inserted
-                else {
-                    innerDelta = delta[k];
+            }
 
-                    if ( Array.isArray(innerDelta) ) {
-                        // new
-                        if ( innerDelta.length === 1 ) {
-                            idx = parseInt(k);
-                            this._curInspector.splice( path, idx, 0, innerDelta[0] );
-                        }
-                    }
-                    // nested apply
-                    else {
-                        this._patchAt( path + '.' + k, delta[k] );
-                    }
+            // remove items, in reverse order to avoid sawing our own floor
+            toRemove = toRemove.sort(_compare.numerically);
+            for (k = toRemove.length - 1; k >= 0; k--) {
+                index1 = toRemove[k];
+                var indexDiff = delta['_' + index1];
+                var removedValue = this._curInspector.splice(path, index1, 1)[0];
+                if (indexDiff[2] === ARRAY_MOVE) {
+                    // reinsert later
+                    toInsert.push({
+                        index: indexDiff[1],
+                        value: removedValue
+                    });
+                }
+            }
+
+            // insert items, in reverse order to avoid moving our own floor
+            toInsert = toInsert.sort(_compare.numericallyBy('index'));
+            for (k = 0; k < toInsert.length; k++) {
+                var insertion = toInsert[k];
+                this._curInspector.splice(path, insertion.index, 0, insertion.value);
+            }
+
+            // apply modifications
+            if (toModify.length > 0) {
+                for (k = 0; k < toModify.length; k++) {
+                    var modification = toModify[k];
+                    this._patchAt( path + '.' + modification.index, modification.delta );
                 }
             }
         }

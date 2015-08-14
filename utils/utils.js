@@ -165,48 +165,47 @@ var normalizePath = function ( path ) {
     return result.join('.');
 };
 
-var normalizeMixinPath = function ( path ) {
-    path = path.replace( /^target\./, '' );
-
-    var result = path.match( /^__mixins__\.\d+/ );
-    if ( !result ) {
-        result = [];
-    }
-
-    if ( result.length > 0 ) {
-        path = path.substring( result[0].length+1 );
-    }
-
-    var list = path.split('.');
-
-    for ( var i = 0; i < list.length; ++i ) {
-        var name = list[i];
-        if ( i%2 === 0 ) {
-            result.push(name);
-        }
-    }
-
-    return result.join('.');
-};
-
 var isMixinPath = function ( path ) {
     path = path.replace( /^target\./, '' );
     return /^__mixins__\.\d+\./.test(path);
 };
 
-var getType = function ( node, path ) {
-    path = normalizeMixinPath(path);
+// var normalizeMixinPath = function ( path ) {
+//     path = path.replace( /^target\./, '' );
 
-    var prop = Editor.JS.getPropertyByPath(node,path);
-    if ( prop )
-        return prop.type;
-    return null;
-};
+//     var result = path.match( /^__mixins__\.\d+/ );
+//     if ( !result ) {
+//         result = [];
+//     }
+
+//     if ( result.length > 0 ) {
+//         path = path.substring( result[0].length+1 );
+//     }
+
+//     var list = path.split('.');
+
+//     for ( var i = 0; i < list.length; ++i ) {
+//         var name = list[i];
+//         if ( i%2 === 0 ) {
+//             result.push(name);
+//         }
+//     }
+
+//     return result.join('.');
+// };
+
+// var getType = function ( node, path ) {
+//     path = normalizeMixinPath(path);
+
+//     var prop = Editor.JS.getPropertyByPath(node,path);
+//     if ( prop )
+//         return prop.type;
+//     return null;
+// };
 
 module.exports = {
     buildNode: buildNode,
     normalizePath: normalizePath,
     isMixinPath: isMixinPath,
-    getType: getType,
 };
 
