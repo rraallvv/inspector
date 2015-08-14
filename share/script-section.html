@@ -8,13 +8,7 @@
             on-close="_onClose"
             >
             <template is="dom-repeat" items="{{target.__props__}}">
-                <editor-prop
-                    name="[[item.name]]"
-                    type="[[item.type]]"
-                    attrs="[[item.attrs]]"
-                    value="{{item.value}}"
-                >
-                </editor-prop>
+                <editor-prop prop="{{item}}"></editor-prop>
             </template>
         </editor-section>
     </template>
