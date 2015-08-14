@@ -1,11 +1,5 @@
-function _buildProp ( node, key, clsList, path, useArray ) {
-    var type = node.__type__;
-
-    if ( !type ) {
-        return;
-    }
-
-    var clsDef = clsList[type];
+function _buildProp ( node, nodeType, key, clsList, path, useArray ) {
+    var clsDef = clsList[nodeType];
     if ( !clsDef ) {
         return;
     }
@@ -106,13 +100,13 @@ function _buildProp ( node, key, clsList, path, useArray ) {
             if ( itemVal && typeof itemVal === 'object' ) {
                 var itemPath = path + '.' + i;
                 for ( k in itemVal ) {
-                    _buildProp( itemVal, i, clsList, itemPath + '.' + k, false );
+                    _buildProp( itemVal, valAttrs.type, i, clsList, itemPath + '.' + k, false );
                 }
             }
         }
     } else if ( valType === 'Object' ) {
         for ( k in val ) {
-            _buildProp( val, k, clsList, path + '.' + k, useArray );
+            _buildProp( val, valAttrs.type, k, clsList, path, useArray );
         }
     }
 }
@@ -122,12 +116,6 @@ var buildNode = function ( node, clsList, path, useArray ) {
 
     if ( !type ) {
         Editor.warn('Type can not be null');
-        return;
-    }
-
-    var clsDef = clsList[type];
-    if ( !clsDef ) {
-        Editor.warn('Can not find class define for type %s', type );
         return;
     }
 
@@ -146,7 +134,7 @@ var buildNode = function ( node, clsList, path, useArray ) {
         }
 
         //
-        _buildProp( node, k, clsList, path, useArray );
+        _buildProp( node, type, k, clsList, path, useArray );
     }
 };
 

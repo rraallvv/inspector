@@ -159,6 +159,18 @@ Editor.registerPanel( 'inspector.panel', {
                         if ( element._rebuilding )
                             return;
 
+                        element.dirty = true;
+
+                        var path = event.detail.path;
+                        var type = event.detail.type;
+
+                        Editor.sendToPanel('scene.panel', 'scene:node-new-property', {
+                            id: id,
+                            path: prop.path.substring(1),
+                            type: prop.type,
+                            isMixin: Utils.isMixinPath(event.detail.path),
+                        });
+                        this._queryNodeAfter( id, 100 );
                     });
 
                     element.addEventListener( 'target-changed', function ( event ) {
@@ -545,7 +557,7 @@ Editor.registerPanel( 'inspector.panel', {
 
             if ( path !== 'target.__mixins__' ) {
                 lastValueIdx = path.lastIndexOf( '.value' );
-                if ( lastValueIdx + 6 !== path.length ) {
+                if ( lastValueIdx !== -1 && lastValueIdx + 6 !== path.length ) {
                     objPath = path.substring(0, lastValueIdx + 6);
                     subPath = path.substring( lastValueIdx + 7 );
                     obj = {};
