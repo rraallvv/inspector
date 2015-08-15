@@ -128,7 +128,7 @@ var buildNode = function ( node, clsList, path, useArray ) {
         if ( k === '__mixins__' ) {
             var mixins = node[k];
             for ( var i = 0; i < mixins.length; ++i ) {
-                buildNode(mixins[i], clsList, path, true);
+                buildNode(mixins[i], clsList, path + '.__mixins__.' + i, true);
             }
             continue;
         }
@@ -139,8 +139,25 @@ var buildNode = function ( node, clsList, path, useArray ) {
 };
 
 var normalizePath = function ( path ) {
-    // path = path.replace( /^target\./, '' );
-    // path = path.replace( /^__mixins__\.\d+\./, '' );
+    path = path.replace( /^target\./, '' );
+    path = path.replace( /^__mixins__\.\d+\./, '' );
+
+    return path;
+};
+
+var _mixinReg = /^target\.__mixins__\.\d+/;
+
+var isMixinPath = function ( path ) {
+    return _mixinReg.test(path);
+};
+
+var mixinPath = function ( path ) {
+    var matches = _mixinReg.exec(path);
+    if ( matches ) return matches[0];
+    return '';
+};
+
+var stripValueInPath = function ( path ) {
     var list = path.split('.');
 
     var result = [];
@@ -153,47 +170,11 @@ var normalizePath = function ( path ) {
     return result.join('.');
 };
 
-var isMixinPath = function ( path ) {
-    path = path.replace( /^target\./, '' );
-    return /^__mixins__\.\d+\./.test(path);
-};
-
-// var normalizeMixinPath = function ( path ) {
-//     path = path.replace( /^target\./, '' );
-
-//     var result = path.match( /^__mixins__\.\d+/ );
-//     if ( !result ) {
-//         result = [];
-//     }
-
-//     if ( result.length > 0 ) {
-//         path = path.substring( result[0].length+1 );
-//     }
-
-//     var list = path.split('.');
-
-//     for ( var i = 0; i < list.length; ++i ) {
-//         var name = list[i];
-//         if ( i%2 === 0 ) {
-//             result.push(name);
-//         }
-//     }
-
-//     return result.join('.');
-// };
-
-// var getType = function ( node, path ) {
-//     path = normalizeMixinPath(path);
-
-//     var prop = Editor.JS.getPropertyByPath(node,path);
-//     if ( prop )
-//         return prop.type;
-//     return null;
-// };
-
 module.exports = {
     buildNode: buildNode,
-    normalizePath: normalizePath,
     isMixinPath: isMixinPath,
+    mixinPath: mixinPath,
+    normalizePath: normalizePath,
+    stripValueInPath: stripValueInPath,
 };
 

@@ -155,7 +155,7 @@ Editor.registerPanel( 'inspector.panel', {
                     });
                 }
                 else if ( this._selectType === 'node' ) {
-                    element.addEventListener( 'create-prop', function ( event ) {
+                    element.addEventListener( 'new-prop', function ( event ) {
                         if ( element._rebuilding )
                             return;
 
@@ -163,15 +163,21 @@ Editor.registerPanel( 'inspector.panel', {
 
                         var path = event.detail.path;
                         var type = event.detail.type;
+                        var mixinType = null;
+
+                        var mixinProp = this._curInspector.get(Utils.mixinPath(path));
+                        if ( mixinProp ) {
+                            mixinType = mixinProp.__type__;
+                        }
 
                         Editor.sendToPanel('scene.panel', 'scene:node-new-property', {
                             id: id,
-                            path: prop.path.substring(1),
-                            type: prop.type,
-                            isMixin: Utils.isMixinPath(event.detail.path),
+                            path: Utils.normalizePath(path),
+                            type: type,
+                            mixinType: mixinType,
                         });
                         this._queryNodeAfter( id, 100 );
-                    });
+                    }.bind(this));
 
                     element.addEventListener( 'target-changed', function ( event ) {
                         if ( element._rebuilding )
@@ -181,21 +187,28 @@ Editor.registerPanel( 'inspector.panel', {
 
                         var path = event.detail.path;
                         var prop = this._curInspector.get(event.detail.path);
-                        var idx;
 
+                        var idx;
                         while ( prop !== undefined && !prop.attrs ) {
                             idx = path.lastIndexOf('.');
                             path = path.substring(0,idx);
                             prop = this._curInspector.get(path);
                         }
-                        var subPath = Utils.normalizePath(event.detail.path.substring(idx));
+                        var subPath = Utils.stripValueInPath(event.detail.path.substring(idx));
+                        path = prop.path + subPath;
+
+                        var mixinType = null;
+                        var mixinProp = this._curInspector.get(Utils.mixinPath(path));
+                        if ( mixinProp ) {
+                            mixinType = mixinProp.__type__;
+                        }
 
                         Editor.sendToPanel('scene.panel', 'scene:node-set-property', {
                             id: id,
-                            path: prop.path.substring(1) + subPath,
+                            path: Utils.normalizePath(path),
                             type: prop.type,
                             value: event.detail.value,
-                            isMixin: Utils.isMixinPath(event.detail.path),
+                            mixinType: mixinType,
                         });
                         this._queryNodeAfter( id, 100 );
                     }.bind(this));
@@ -466,7 +479,7 @@ Editor.registerPanel( 'inspector.panel', {
         }
 
         // rebuild target
-        Utils.buildNode( node, clsList, '', false );
+        Utils.buildNode( node, clsList, 'target', false );
 
         // if current inspector is node-inspector and have the same id
         if ( this._curInspector &&
