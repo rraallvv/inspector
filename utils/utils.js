@@ -26,6 +26,10 @@ function _buildProp ( node, nodeType, key, clsList, path, useArray ) {
     if ( !valAttrs )
         return;
 
+    // skip hidden properties
+    if ( valAttrs.visible === false )
+        return;
+
     // get value type
     var valType = valAttrs.type;
     if ( val && typeof val === 'object' && val.__type__ ) {
