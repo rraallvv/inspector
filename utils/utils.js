@@ -1,4 +1,4 @@
-function _buildProp ( node, nodeType, key, clsList, path, useArray ) {
+function _buildProp ( node, nodeType, key, clsList, path, useArray, valAttrs ) {
     var clsDef = clsList[nodeType];
     if ( !clsDef ) {
         return;
@@ -17,8 +17,7 @@ function _buildProp ( node, nodeType, key, clsList, path, useArray ) {
     var val = node[key];
 
     // get attrs
-    var valAttrs;
-    if ( clsDef.properties ) {
+    if ( !valAttrs && clsDef.properties ) {
         valAttrs = clsDef.properties[key];
     }
 
@@ -92,25 +91,22 @@ function _buildProp ( node, nodeType, key, clsList, path, useArray ) {
     if ( valType === 'Array' ) {
         for ( i = 0; i < val.length; ++i ) {
             var itemVal = val[i];
-
-            val[i] = {
-                name: '[' + i + ']',
-                path: path + '.' + i,
-                value: itemVal,
-                type: valAttrs.type,
-                attrs: valAttrs,
-            };
-
             if ( itemVal && typeof itemVal === 'object' ) {
-                var itemPath = path + '.' + i;
-                for ( k in itemVal ) {
-                    _buildProp( itemVal, valAttrs.type, i, clsList, itemPath + '.' + k, false );
-                }
+                _buildProp( val, valAttrs.type, i, clsList, path, false, valAttrs );
+                val[i].name = '[' + i + ']';
+            } else {
+                val[i] = {
+                    name: '[' + i + ']',
+                    path: path + '.' + i,
+                    value: itemVal,
+                    type: valAttrs.type,
+                    attrs: valAttrs,
+                };
             }
         }
     } else if ( valType === 'Object' ) {
         for ( k in val ) {
-            _buildProp( val, valAttrs.type, k, clsList, path, useArray );
+            _buildProp( val, valAttrs.type, k, clsList, path, true );
         }
     }
 }
