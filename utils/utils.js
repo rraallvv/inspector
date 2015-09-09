@@ -51,7 +51,7 @@ function _buildProp ( node, nodeType, key, clsList, path, useArray, valAttrs ) {
         // get type-chain for it
         var valClsDef = clsList[valType];
         if ( valClsDef ) {
-            valAttrs.extends = valClsDef.extends;
+            valAttrs.extends = valClsDef.extends.slice();
         }
 
         // NOTE: if we don't register the type in ui-property, we will expand it.

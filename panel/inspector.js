@@ -490,7 +490,7 @@ Editor.registerPanel( 'inspector.panel', {
             var delta = _diffpatcher.diff( this._curInspector.target, node );
             if ( delta ) {
                 this._curInspector._rebuilding = true;
-                this._applyPatch(delta, node);
+                this._applyPatch(delta);
                 this._curInspector._rebuilding = false;
             }
 
@@ -555,7 +555,7 @@ Editor.registerPanel( 'inspector.panel', {
         return 'fa fa-eye-slash uninspect';
     },
 
-    _applyPatch: function ( delta, node ) {
+    _applyPatch: function ( delta ) {
         var curPath = 'target';
         for ( var p in delta ) {
             this._patchAt( curPath + '.' + p, delta[p] );
