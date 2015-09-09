@@ -92,7 +92,13 @@ function _buildProp ( node, nodeType, key, clsList, path, useArray, valAttrs ) {
         for ( i = 0; i < val.length; ++i ) {
             var itemVal = val[i];
             if ( itemVal && typeof itemVal === 'object' ) {
-                _buildProp( val, valAttrs.type, i, clsList, path, false, valAttrs );
+                // clone the valAttrs
+                var itemAttrs = {};
+                for ( var p in valAttrs ) {
+                    itemAttrs[p] = valAttrs[p];
+                }
+
+                _buildProp( val, itemAttrs.type, i, clsList, path, false, itemAttrs );
                 val[i].name = '[' + i + ']';
             } else {
                 val[i] = {

@@ -573,10 +573,14 @@ Editor.registerPanel( 'inspector.panel', {
                 if ( lastValueIdx !== -1 && lastValueIdx + 6 !== path.length ) {
                     objPath = path.substring(0, lastValueIdx + 6);
                     subPath = path.substring( lastValueIdx + 7 );
-                    obj = {};
                     var cur = this._curInspector.get(objPath);
-                    for ( k in cur ) {
-                        obj[k] = cur[k];
+
+                    // only object needs check subPath
+                    if ( typeof cur === 'object' && !Array.isArray(cur) ) {
+                        obj = {};
+                        for ( k in cur ) {
+                            obj[k] = cur[k];
+                        }
                     }
                 }
             }
