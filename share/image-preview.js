@@ -35,10 +35,10 @@ Polymer({
 
     resize: function () {
         var bcr = this.$.content.getBoundingClientRect();
-        var result = EditorUI.fitSize( this._image.width,
-                                       this._image.height,
-                                       bcr.width,
-                                       bcr.height );
+        var result = Editor.Utils.fitSize( this._image.width,
+                                           this._image.height,
+                                           bcr.width,
+                                           bcr.height );
         this.$.canvas.width = result[0];
         this.$.canvas.height = result[1];
 
