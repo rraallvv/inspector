@@ -50,7 +50,7 @@ function _buildProp ( node, nodeType, key, clsList, path, useArray, valAttrs ) {
     if ( val && typeof val === 'object' ) {
         // get type-chain for it
         var valClsDef = clsList[valType];
-        if ( valClsDef ) {
+        if ( valClsDef && valClsDef.extends ) {
             valAttrs.extends = valClsDef.extends.slice();
         }
 
