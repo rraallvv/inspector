@@ -39,8 +39,8 @@ Polymer({
                                            this._image.height,
                                            bcr.width,
                                            bcr.height );
-        this.$.canvas.width = result[0];
-        this.$.canvas.height = result[1];
+        this.$.canvas.width = Math.ceil(result[0]);
+        this.$.canvas.height = Math.ceil(result[1]);
 
         //
         this.repaint();
