@@ -461,6 +461,8 @@ Editor.registerPanel( 'inspector.panel', {
     },
 
     'scene:reply-query-node': function ( queryID, nodeInfo ) {
+        nodeInfo = JSON.parse(nodeInfo);
+
         var node = nodeInfo.value;
         if ( !node )
             return;
