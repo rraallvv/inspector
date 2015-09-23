@@ -47,6 +47,9 @@ Editor.registerPanel( 'inspector.panel', {
         'drop-area-accept': '_onDropAreaAccept',
         'meta-revert': '_onMetaRevert',
         'meta-apply': '_onMetaApply',
+        'prefab-select': '_onPrefabSelect',
+        'prefab-revert': '_onPrefabRevert',
+        'prefab-apply': '_onPrefabApply',
         'node-unmixin': '_onNodeUnmixin',
     },
 
@@ -348,6 +351,29 @@ Editor.registerPanel( 'inspector.panel', {
         var jsonString = JSON.stringify(this._curInspector.target);
 
         Editor.assetdb.saveMeta( uuid, jsonString );
+    },
+
+    _onPrefabSelect: function ( event ) {
+        event.stopPropagation();
+
+        var prefabUuid = this._curInspector.target.__prefab__.uuid;
+        Editor.sendToAll('assets:hint', prefabUuid);
+    },
+
+    _onPrefabRevert: function ( event ) {
+        event.stopPropagation();
+
+        Editor.sendToPanel('scene.panel', 'scene:apply-prefab',
+                           this._curInspector.target.uuid
+                          );
+    },
+
+    _onPrefabApply: function ( event ) {
+        event.stopPropagation();
+
+        Editor.sendToPanel('scene.panel', 'scene:revert-prefab',
+                           this._curInspector.target.uuid
+                          );
     },
 
     _onNodeUnmixin: function ( event ) {

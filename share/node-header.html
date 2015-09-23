@@ -18,6 +18,15 @@
             <editor-checkbox disabled checked="{{enabled}}"></editor-checkbox>
             <editor-input class="flex-1" value="{{name}}"></editor-input>
         </editor-toolbar>
+        <template is="dom-if" if="[[prefab]]">
+            <editor-toolbar class="end-justified">
+                <editor-label class="blue mini">prefab</editor-label>
+                <span class="flex-1"></span>
+                <editor-button on-click="_onPrefabSelect">Select</editor-button>
+                <editor-button on-click="_onPrefabRevert">Revert</editor-button>
+                <editor-button on-click="_onPrefabApply">Apply</editor-button>
+            </editor-toolbar>
+        </template>
     </template>
 </dom-module>
 
@@ -37,6 +46,23 @@
                 value: '',
                 notify: true,
             },
+
+            prefab: {
+                type: Object,
+                value: null,
+            },
+        },
+
+        _onPrefabSelect: function () {
+            this.fire('prefab-select');
+        },
+
+        _onPrefabApply: function () {
+            this.fire('prefab-apply');
+        },
+
+        _onPrefabRevert: function () {
+            this.fire('prefab-revert');
         },
     });
 </script>
