@@ -15,10 +15,10 @@
 
     <template>
         <editor-toolbar>
-            <editor-checkbox disabled checked="{{enabled}}"></editor-checkbox>
-            <editor-input class="flex-1" value="{{name}}"></editor-input>
+            <editor-checkbox disabled></editor-checkbox>
+            <editor-input class="flex-1" value="{{target.name.value}}"></editor-input>
         </editor-toolbar>
-        <template is="dom-if" if="[[prefab]]">
+        <template is="dom-if" if="[[target.__prefab__]]">
             <editor-toolbar class="end-justified">
                 <editor-label class="blue mini">prefab</editor-label>
                 <span class="flex-1"></span>
@@ -35,21 +35,10 @@
         is: 'inspector-node-header',
 
         properties: {
-            enabled: {
-                type: Boolean,
-                value: true,
-                notify: true,
-            },
-
-            name: {
-                type: String,
-                value: '',
-                notify: true,
-            },
-
-            prefab: {
+            target: {
                 type: Object,
                 value: null,
+                notify: true,
             },
         },
 
