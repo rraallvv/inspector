@@ -363,7 +363,7 @@ Editor.registerPanel( 'inspector.panel', {
     _onPrefabRevert: function ( event ) {
         event.stopPropagation();
 
-        Editor.sendToPanel('scene.panel', 'scene:apply-prefab',
+        Editor.sendToPanel('scene.panel', 'scene:revert-prefab',
                            this._curInspector.target.uuid
                           );
     },
@@ -371,7 +371,7 @@ Editor.registerPanel( 'inspector.panel', {
     _onPrefabApply: function ( event ) {
         event.stopPropagation();
 
-        Editor.sendToPanel('scene.panel', 'scene:revert-prefab',
+        Editor.sendToPanel('scene.panel', 'scene:apply-prefab',
                            this._curInspector.target.uuid
                           );
     },
