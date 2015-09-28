@@ -1,6 +1,4 @@
-Polymer({
-    is: 'inspector-code-preview',
-
+Editor.registerElement({
     properties: {
         type: {
             type: String,

@@ -28,30 +28,29 @@
             </editor-toolbar>
         </template>
     </template>
-</dom-module>
 
-<script>
-    Polymer({
-        is: 'inspector-node-header',
+    <script>
+        Editor.registerElement({
 
-        properties: {
-            target: {
-                type: Object,
-                value: null,
-                notify: true,
+            properties: {
+                target: {
+                    type: Object,
+                    value: null,
+                    notify: true,
+                },
             },
-        },
 
-        _onPrefabSelect: function () {
-            this.fire('prefab-select');
-        },
+            _onPrefabSelect: function () {
+                this.fire('prefab-select');
+            },
 
-        _onPrefabApply: function () {
-            this.fire('prefab-apply');
-        },
+            _onPrefabApply: function () {
+                this.fire('prefab-apply');
+            },
 
-        _onPrefabRevert: function () {
-            this.fire('prefab-revert');
-        },
-    });
-</script>
+            _onPrefabRevert: function () {
+                this.fire('prefab-revert');
+            },
+        });
+    </script>
+</dom-module>

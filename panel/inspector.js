@@ -29,8 +29,6 @@ var _compare = {
 };
 
 Editor.registerPanel( 'inspector.panel', {
-    is: 'editor-inspector',
-
     behaviors: [EditorUI.droppable],
 
     hostAttributes: {

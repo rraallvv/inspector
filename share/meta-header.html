@@ -40,41 +40,40 @@
             </span>
         </editor-toolbar>
     </template>
+
+    <script>
+        Editor.registerElement({
+
+            properties: {
+                target: {
+                    type: Object,
+                    value: null,
+                },
+
+                icon: {
+                    type: String,
+                    value: '',
+                },
+
+                dirty: {
+                    type: Boolean,
+                    value: false,
+                },
+            },
+
+            _onRevert: function ( event ) {
+                event.stopPropagation();
+
+                this.fire('meta-revert', {
+                    uuid: this.target.uuid,
+                });
+            },
+
+            _onApply: function ( event ) {
+                event.stopPropagation();
+
+                this.fire('meta-apply');
+            },
+        });
+    </script>
 </dom-module>
-
-<script>
-    Polymer({
-        is: 'inspector-meta-header',
-
-        properties: {
-            target: {
-                type: Object,
-                value: null,
-            },
-
-            icon: {
-                type: String,
-                value: '',
-            },
-
-            dirty: {
-                type: Boolean,
-                value: false,
-            },
-        },
-
-        _onRevert: function ( event ) {
-            event.stopPropagation();
-
-            this.fire('meta-revert', {
-                uuid: this.target.uuid,
-            });
-        },
-
-        _onApply: function ( event ) {
-            event.stopPropagation();
-
-            this.fire('meta-apply');
-        },
-    });
-</script>
