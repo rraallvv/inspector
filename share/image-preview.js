@@ -49,7 +49,7 @@ Editor.registerElement({
         ctx.imageSmoothingEnabled = false;
 
         // TODO
-        // if ( this.asset instanceof Fire.Texture ) {
+        // if ( this.asset instanceof cc.TextureAsset ) {
             ctx.drawImage( this._image, 0, 0, this.$.canvas.width, this.$.canvas.height );
 
             var xRatio = this.$.canvas.width / this._image.width;
@@ -59,7 +59,7 @@ Editor.registerElement({
             //     if ( this.meta.type === Fire.TextureType.Sprite ) {
             //         //for ( var subInfo of this.meta.subRawData ) {
             //         this.meta.subRawData.forEach(function(subInfo) {
-            //             if ( subInfo.asset instanceof Fire.Sprite ) {
+            //             if ( subInfo.asset instanceof cc.SpriteAsset ) {
             //                 ctx.beginPath();
             //                 ctx.rect( subInfo.asset.trimX * xRatio,
             //                           subInfo.asset.trimY * yRatio,
@@ -73,7 +73,7 @@ Editor.registerElement({
             //     }
             // }
         // }
-        // else if ( this.asset instanceof Fire.Sprite ) {
+        // else if ( this.asset instanceof cc.SpriteAsset ) {
         //     if ( this.rawTexture ) {
         //         ctx.drawImage( this.rawTexture.image,
         //                       this.asset.trimX, this.asset.trimY, this.asset.width, this.asset.height,
