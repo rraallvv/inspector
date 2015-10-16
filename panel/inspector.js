@@ -135,6 +135,9 @@ Editor.registerPanel( 'inspector.panel', {
     inspect: function ( type, id, obj ) {
         this._inspectType = type;
         this._loadInspector ( type, function ( err, element ) {
+            if ( err ) {
+                return Editor.error(err);
+            }
             if ( this._selectID !== id )
                 return;
 
