@@ -1,3 +1,5 @@
+'use strict';
+
 Editor.registerElement({
     properties: {
         info: {
@@ -21,11 +23,9 @@ Editor.registerElement({
         if ( !this.path )
             return;
 
-        var Fs = require('fire-fs');
-
         this._image = new Image();
         this._image.onload = function () {
-            this.info = this._image.width + " x " + this._image.height;
+            this.info = this._image.width + ' x ' + this._image.height;
             this.resize();
         }.bind(this);
         this._image.src = this.path + '?' + this.mtime;
@@ -45,15 +45,15 @@ Editor.registerElement({
     },
 
     repaint: function () {
-        var ctx = this.$.canvas.getContext("2d");
+        var ctx = this.$.canvas.getContext('2d');
         ctx.imageSmoothingEnabled = false;
 
         // TODO
         // if ( this.asset instanceof cc.TextureAsset ) {
             ctx.drawImage( this._image, 0, 0, this.$.canvas.width, this.$.canvas.height );
 
-            var xRatio = this.$.canvas.width / this._image.width;
-            var yRatio = this.$.canvas.height / this._image.height;
+            // var xRatio = this.$.canvas.width / this._image.width;
+            // var yRatio = this.$.canvas.height / this._image.height;
 
             // if ( this.meta.subRawData ) {
             //     if ( this.meta.type === Fire.TextureType.Sprite ) {
