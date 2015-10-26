@@ -381,7 +381,7 @@
         _onNodeUnmixin: function ( event ) {
             event.stopPropagation();
 
-            Editor.sendToPanel('scene.panel', 'scene:node-unmixin',
+            Editor.sendToPanel('scene.panel', 'scene:component-remove',
                                this._selectID,
                                event.detail.className
                               );
@@ -478,7 +478,7 @@
             //
             var dragItems = event.detail.dragItems;
             var uuid = dragItems[0];
-            Editor.sendToPanel('scene.panel', 'scene:node-mixin',
+            Editor.sendToPanel('scene.panel', 'scene:component-add',
                                this._selectID,
                                uuid
                               );
