@@ -1,3 +1,5 @@
+'use strict';
+
 function _buildProp ( node, nodeType, key, clsList, path, useArray, valAttrs ) {
     var clsDef = clsList[nodeType];
     if ( !clsDef ) {
@@ -9,7 +11,7 @@ function _buildProp ( node, nodeType, key, clsList, path, useArray, valAttrs ) {
     }
 
     // process mixins
-    if ( key === '__mixins__' ) {
+    if ( key === '__comps__' ) {
         return;
     }
 
@@ -131,10 +133,10 @@ var buildNode = function ( node, clsList, path, useArray ) {
         }
 
         // process mixins
-        if ( k === '__mixins__' ) {
+        if ( k === '__comps__' ) {
             var mixins = node[k];
             for ( var i = 0; i < mixins.length; ++i ) {
-                buildNode(mixins[i], clsList, path + '.__mixins__.' + i, true);
+                buildNode(mixins[i], clsList, path + '.__comps__.' + i, true);
             }
             continue;
         }
@@ -146,12 +148,12 @@ var buildNode = function ( node, clsList, path, useArray ) {
 
 var normalizePath = function ( path ) {
     path = path.replace( /^target\./, '' );
-    path = path.replace( /^__mixins__\.\d+\./, '' );
+    path = path.replace( /^__comps__\.\d+\./, '' );
 
     return path;
 };
 
-var _mixinReg = /^target\.__mixins__\.\d+/;
+var _mixinReg = /^target\.__comps__\.\d+/;
 
 var isMixinPath = function ( path ) {
     return _mixinReg.test(path);

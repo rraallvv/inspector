@@ -267,7 +267,7 @@
         _loadInspector: function ( type, cb ) {
             var url = Editor.inspectors[type];
             if ( url === undefined ) {
-                if ( cb ) cb ( new Error ( 'Can not find inspector for type %s', type ) );
+                if ( cb ) cb ( new Error ( `Can not find inspector for type ${type}` ) );
                 return;
             }
 
