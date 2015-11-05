@@ -271,7 +271,7 @@
                 return;
             }
 
-            // EXAMPLE 1: cc.TextureAsset ==> fire-texture
+            // EXAMPLE 1: cc.Texture2D ==> fire-texture
             // EXAMPLE 2: fooBar ==> foo-bar
             var prefix = type.replace(/([a-z][A-Z])/g, function (g) {
                 return g[0] + '-' + g[1];

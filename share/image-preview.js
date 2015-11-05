@@ -49,7 +49,7 @@ Editor.registerElement({
         ctx.imageSmoothingEnabled = false;
 
         // TODO
-        // if ( this.asset instanceof cc.TextureAsset ) {
+        // if ( this.asset instanceof cc.Texture2D ) {
             ctx.drawImage( this._image, 0, 0, this.$.canvas.width, this.$.canvas.height );
 
             // var xRatio = this.$.canvas.width / this._image.width;
