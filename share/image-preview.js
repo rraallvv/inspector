@@ -59,7 +59,7 @@ Editor.registerElement({
             //     if ( this.meta.type === Fire.TextureType.Sprite ) {
             //         //for ( var subInfo of this.meta.subRawData ) {
             //         this.meta.subRawData.forEach(function(subInfo) {
-            //             if ( subInfo.asset instanceof cc.SpriteAsset ) {
+            //             if ( subInfo.asset instanceof cc.SpriteFrame ) {
             //                 ctx.beginPath();
             //                 ctx.rect( subInfo.asset.trimX * xRatio,
             //                           subInfo.asset.trimY * yRatio,
@@ -73,7 +73,7 @@ Editor.registerElement({
             //     }
             // }
         // }
-        // else if ( this.asset instanceof cc.SpriteAsset ) {
+        // else if ( this.asset instanceof cc.SpriteFrame ) {
         //     if ( this.rawTexture ) {
         //         ctx.drawImage( this.rawTexture.image,
         //                       this.asset.trimX, this.asset.trimY, this.asset.width, this.asset.height,
