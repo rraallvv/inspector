@@ -17,6 +17,9 @@
         <editor-toolbar>
             <editor-checkbox disabled></editor-checkbox>
             <editor-input class="flex-1" value="{{target.name.value}}"></editor-input>
+            <editor-button id="addCompBtn" on-click="_onPopupComponentMenu">
+                <i class="fa fa-plus"></i>
+            </editor-button>
         </editor-toolbar>
         <template is="dom-if" if="[[target.__prefab__]]">
             <editor-toolbar class="end-justified">
@@ -50,6 +53,17 @@
 
             _onPrefabRevert: function () {
                 this.fire('prefab-revert');
+            },
+
+            _onPopupComponentMenu: function () {
+                var rect = this.$.addCompBtn.getBoundingClientRect();
+                Editor.sendToCore(
+                    'inspector:popup-comp-menu',
+                    rect.left,
+                    rect.bottom + 5,
+                    this.target.uuid,
+                    Editor.requireIpcEvent
+                );
             },
         });
     </script>
