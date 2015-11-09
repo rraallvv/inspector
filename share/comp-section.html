@@ -4,7 +4,7 @@
 
     <template>
         <editor-section closeable
-            text="[[target.__type__]]"
+            text="{{_nameText(target)}}"
             on-close="_onClose"
             >
             <template is="dom-repeat" items="{{target.__props__}}">
@@ -22,6 +22,14 @@
                     value: null,
                     notify: true,
                 },
+            },
+
+            _nameText: function ( target ) {
+                if ( target ) {
+                    return target.displayName ? target.displayName : EditorUI.toHumanText(target.__type__);
+                }
+
+                return '(Anonymous)';
             },
 
             // DISABLE
