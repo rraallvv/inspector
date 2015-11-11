@@ -1,76 +1,72 @@
 <dom-module id="inspector-comp-section">
-    <style>
-    </style>
+  <template>
+    <editor-section closeable
+      text="{{_nameText(target)}}"
+      on-close="_onClose"
+    >
+      <template is="dom-repeat" items="{{target.__props__}}">
+        <editor-prop prop="{{item}}"></editor-prop>
+      </template>
+    </editor-section>
+  </template>
 
-    <template>
-        <editor-section closeable
-            text="{{_nameText(target)}}"
-            on-close="_onClose"
-            >
-            <template is="dom-repeat" items="{{target.__props__}}">
-                <editor-prop prop="{{item}}"></editor-prop>
-            </template>
-        </editor-section>
-    </template>
+  <script>
+    Editor.registerElement({
 
-    <script>
-        Editor.registerElement({
+      properties: {
+        target: {
+          type: Object,
+          value: null,
+          notify: true,
+        },
+      },
 
-            properties: {
-                target: {
-                    type: Object,
-                    value: null,
-                    notify: true,
-                },
-            },
+      _nameText: function ( target ) {
+        if ( target ) {
+          return target.displayName ? target.displayName : EditorUI.toHumanText(target.__type__);
+        }
 
-            _nameText: function ( target ) {
-                if ( target ) {
-                    return target.displayName ? target.displayName : EditorUI.toHumanText(target.__type__);
-                }
+        return 'Unknown';
+      },
 
-                return 'Unknown';
-            },
+      // DISABLE
+      // _props: function ( target ) {
+      //   var props = [];
+      //   for ( var p in target ) {
+      //     if ( p === '__type__' )
+      //       continue;
 
-            // DISABLE
-            // _props: function ( target ) {
-            //     var props = [];
-            //     for ( var p in target ) {
-            //         if ( p === '__type__' )
-            //             continue;
+      //     var prop = target[p];
+      //     if ( !prop.attrs || prop.attrs.visible === false )
+      //       continue;
 
-            //         var prop = target[p];
-            //         if ( !prop.attrs || prop.attrs.visible === false )
-            //             continue;
+      //     props.push ( prop );
+      //   }
+      //   return props;
+      // },
 
-            //         props.push ( prop );
-            //     }
-            //     return props;
-            // },
+      // DISABLE
+      // _onValueChanged: function ( event ) {
+      //   var mixinType = this.target.__type__;
+      //   var propEL = Polymer.dom(event).localTarget
+      //   var subPath = event.detail.path;
 
-            // DISABLE
-            // _onValueChanged: function ( event ) {
-            //     var mixinType = this.target.__type__;
-            //     var propEL = Polymer.dom(event).localTarget
-            //     var subPath = event.detail.path;
+      //   if ( subPath ) {
+      //     this.notifyPath('target.' + propEL.name + '.' + subPath,
+      //             event.detail.value );
+      //   } else {
+      //     this.notifyPath('target.' + propEL.name + '.value',
+      //             event.detail.value );
+      //   }
+      // },
 
-            //     if ( subPath ) {
-            //         this.notifyPath('target.' + propEL.name + '.' + subPath,
-            //                         event.detail.value );
-            //     } else {
-            //         this.notifyPath('target.' + propEL.name + '.value',
-            //                         event.detail.value );
-            //     }
-            // },
+      _onClose: function ( event ) {
+        event.stopPropagation();
 
-            _onClose: function ( event ) {
-                event.stopPropagation();
-
-                this.fire( 'node-unmixin', {
-                    className: this.target.__type__,
-                });
-            },
+        this.fire( 'node-unmixin', {
+          className: this.target.__type__,
         });
-    </script>
-
+      },
+    });
+  </script>
 </dom-module>
