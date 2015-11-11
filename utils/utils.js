@@ -126,6 +126,11 @@ let buildNode = function ( node, clsList, path, useArray ) {
     return;
   }
 
+  let clsDef = clsList[type];
+  if ( clsDef && clsDef.editor ) {
+    node.__editor__ = clsDef.editor;
+  }
+
   for ( let k in node ) {
     if ( k === '__type__' ) {
       continue;
