@@ -1,50 +1,95 @@
 <dom-module id="inspector-code-preview">
-    <link rel="import" type="css" href="code-preview.paraiso.dark.css">
+  <link rel="import" type="css" href="code-preview.paraiso.dark.css">
 
+  <template>
     <style>
-        :host {
-            position: relative;
-            overflow: auto;
+      :host {
+        position: relative;
+        overflow: auto;
 
-            border: 1px solid black;
-            box-shadow: inset 0 0 8px 2px rgba(0,0,0,0.2);
-            background: #333;
-        }
+        border: 1px solid black;
+        box-shadow: inset 0 0 8px 2px rgba(0,0,0,0.2);
+        background: #333;
+      }
 
-        @font-face {
-            font-family: 'DejaVu Sans Mono';
-            src: url('app://editor/static/fonts/DejaVuSansMono.ttf');
-            font-weight: normal;
-            font-style: normal;
-        }
+      @font-face {
+        font-family: 'DejaVu Sans Mono';
+        src: url('app://editor/static/fonts/DejaVuSansMono.ttf');
+        font-weight: normal;
+        font-style: normal;
+      }
 
-        pre {
-            margin: 0px;
-            padding: 10px;
-            font-size: 14px;
-            font-family: 'DejaVu Sans Mono';
+      pre {
+        margin: 0px;
+        padding: 10px;
+        font-size: 14px;
+        font-family: 'DejaVu Sans Mono';
 
-            -webkit-user-select: text;
-            cursor: auto;
-        }
+        -webkit-user-select: text;
+        cursor: auto;
+      }
 
-        pre::selection {
-            background: #007acc;
-        }
+      pre::selection {
+        background: #007acc;
+      }
 
-        pre * {
-            -webkit-user-select: text;
-        }
+      pre * {
+        -webkit-user-select: text;
+      }
 
-        pre *::selection {
-            background: #007acc;
-        }
+      pre *::selection {
+        background: #007acc;
+      }
     </style>
 
-    <template>
-        <pre id="code">
-        </pre>
-    </template>
+    <pre id="code"></pre>
+  </template>
 
-    <script type="text/javascript" src="code-preview.js"></script>
+  <script>
+    'use strict';
+
+    Editor.registerElement({
+      properties: {
+        type: {
+          type: String,
+          value: 'unknown',
+          observer: '_typeChanged'
+        },
+
+        path: {
+          type: String,
+          value: '',
+          observer: '_pathChanged'
+        },
+      },
+
+      _pathChanged: function () {
+        if ( !this.path || this.type === 'unknown' ) {
+          return;
+        }
+
+        this._highlightCode();
+      },
+
+      _typeChanged: function () {
+        if ( !this.path || this.type === 'unknown' ) {
+          return;
+        }
+
+        this._highlightCode();
+      },
+
+      _highlightCode: function () {
+        const Hljs = require('highlight.js');
+        const Fs = require('fire-fs');
+
+        let text = Fs.readFileSync( this.path, {encoding: 'utf-8'} );
+        let result = Hljs.highlight( this.type, text );
+
+        let codeDOM = Polymer.dom(this.$.code);
+        codeDOM.innerHTML = result.value;
+        // console.log(result);
+      },
+    });
+  </script>
 </dom-module>
