@@ -49,11 +49,11 @@ describe('build result', function() {
       __type__: 'MyClass',
       __comps__: [
         {
-          __type__: 'MyMixinClass1',
+          __type__: 'MyComp01',
           foo: 'foo',
         },
         {
-          __type__: 'MyMixinClass2',
+          __type__: 'MyComp02',
           bar: 2,
         },
       ],
@@ -64,14 +64,14 @@ describe('build result', function() {
         properties: {
         },
       },
-      MyMixinClass1: {
+      MyComp01: {
         properties: {
           foo: {
             type: 'String',
           },
         },
       },
-      MyMixinClass2: {
+      MyComp02: {
         properties: {
           bar: {
             type: 'Integer',
@@ -107,5 +107,38 @@ describe('build result', function() {
 
     expect ( node.foobar.value ).to.be.deep.equal({ a: 'a' });
     expect ( node.foobar.type ).to.be.equal('Foobar');
+  });
+
+  it('store editor data to __editor__ for both component and node', function() {
+    let node = {
+      __type__: 'MyClass',
+      __comps__: [
+        {
+          __type__: 'MyComp01',
+          foo: 'foo',
+        },
+      ],
+    };
+
+    buildNode(node, {
+      MyClass: {
+        editor: {
+          inspector: 'packages://foo/bar/foobar.html',
+        },
+      },
+      MyComp01: {
+        editor: {
+          inspector: 'packages://my/comp/my-comp-01.html',
+        },
+        properties: {
+          foo: {
+            type: 'String',
+          },
+        },
+      },
+    }, 'target', false);
+
+    expect ( node.__editor__.inspector ).to.be.deep.equal('packages://foo/bar/foobar.html');
+    expect ( node.__comps__[0].__editor__.inspector ).to.be.deep.equal('packages://my/comp/my-comp-01.html');
   });
 });
