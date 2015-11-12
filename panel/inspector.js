@@ -49,7 +49,7 @@
       'prefab-select': '_onPrefabSelect',
       'prefab-revert': '_onPrefabRevert',
       'prefab-apply': '_onPrefabApply',
-      'node-unmixin': '_onNodeUnmixin',
+      'remove-comp': '_onRemoveComp',
     },
 
     properties: {
@@ -171,19 +171,13 @@
 
               let path = event.detail.path;
               let type = event.detail.type;
-              let mixinType = null;
 
-              let mixinProp = this._curInspector.get(Utils.mixinPath(path));
+              let compProp = this._curInspector.get(Utils.compPath(path));
 
-              if ( mixinProp ) {
-                mixinType = mixinProp.__type__;
-              }
-
-              Editor.sendToPanel('scene.panel', 'scene:node-new-property', {
-                id: id,
+              Editor.sendToPanel('scene.panel', 'scene:new-property', {
+                id: compProp ? compProp.uuid : id,
                 path: Utils.normalizePath(path),
                 type: type,
-                mixinType: mixinType,
               });
               this._queryNodeAfter( id, 100 );
             });
@@ -208,18 +202,12 @@
               let subPath = Utils.stripValueInPath(event.detail.path.substring(idx));
               path = prop.path + subPath;
 
-              let mixinType = null;
-              let mixinProp = this._curInspector.get(Utils.mixinPath(path));
-              if ( mixinProp ) {
-                mixinType = mixinProp.__type__;
-              }
-
-              Editor.sendToPanel('scene.panel', 'scene:node-set-property', {
-                id: id,
+              let compProp = this._curInspector.get(Utils.compPath(path));
+              Editor.sendToPanel('scene.panel', 'scene:set-property', {
+                id: compProp ? compProp.uuid : id,
                 path: Utils.normalizePath(path),
                 type: prop.type,
                 value: event.detail.value,
-                mixinType: mixinType,
               });
               this._queryNodeAfter( id, 100 );
             });
@@ -404,14 +392,14 @@
       );
     },
 
-    _onNodeUnmixin ( event ) {
+    _onRemoveComp ( event ) {
       event.stopPropagation();
 
       Editor.sendToPanel(
         'scene.panel',
         'scene:component-remove',
         this._selectID,
-        event.detail.className
+        event.detail.uuid
       );
 
       // FIXME, HACK

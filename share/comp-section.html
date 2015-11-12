@@ -129,8 +129,8 @@
       _onClose ( event ) {
         event.stopPropagation();
 
-        this.fire( 'node-unmixin', {
-          className: this.target.__type__,
+        this.fire( 'remove-comp', {
+          uuid: this.target.uuid,
         });
       },
     });
