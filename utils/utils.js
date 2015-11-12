@@ -146,6 +146,10 @@ let buildNode = function ( node, clsList, path, useArray ) {
     }
 
     //
+    if ( node.__editor__ && node.__editor__.inspector ) {
+      useArray = false;
+    }
+
     _buildProp( node, type, k, clsList, path, useArray );
   }
 };

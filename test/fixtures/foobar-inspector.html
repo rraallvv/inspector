@@ -1,0 +1,17 @@
+<dom-module id="foobar-inspector">
+  <template>
+    <h2>Custom Inspector</h2>
+    <editor-prop prop="{{target.foo}}"></editor-prop>
+    <editor-prop prop="{{target.bar}}"></editor-prop>
+  </template>
+
+  <script>
+    Editor.registerElement({
+      target: {
+        type: Object,
+        value: null,
+        notify: true,
+      },
+    });
+  </script>
+</dom-module>
