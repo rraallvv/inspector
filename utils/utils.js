@@ -161,14 +161,14 @@ function normalizePath ( path ) {
   return path;
 }
 
-let _mixinReg = /^target\.__comps__\.\d+/;
+let _compReg = /^target\.__comps__\.\d+/;
 
-function isMixinPath ( path ) {
-  return _mixinReg.test(path);
+function isCompPath ( path ) {
+  return _compReg.test(path);
 }
 
-function mixinPath ( path ) {
-  let matches = _mixinReg.exec(path);
+function compPath ( path ) {
+  let matches = _compReg.exec(path);
   if ( matches ) {
     return matches[0];
   }
@@ -190,8 +190,8 @@ function stripValueInPath ( path ) {
 
 module.exports = {
   buildNode: buildNode,
-  isMixinPath: isMixinPath,
-  mixinPath: mixinPath,
+  isCompPath: isCompPath,
+  compPath: compPath,
   normalizePath: normalizePath,
   stripValueInPath: stripValueInPath,
 };
