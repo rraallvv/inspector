@@ -1,7 +1,8 @@
 'use strict';
 
-Editor.require('app://editor/page/page-init-for-test');
-Editor.require('packages://ui-property/init');
+Editor.require('app://editor/test-utils/page-init-for-test');
+Editor.require('app://editor/page/register-ui-properties');
+Editor.require('app://editor/page/register-inspector');
 
 // =========================================
 
