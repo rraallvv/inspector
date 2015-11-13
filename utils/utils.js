@@ -127,8 +127,13 @@ let buildNode = function ( node, clsList, path, useArray ) {
   }
 
   let clsDef = clsList[type];
-  if ( clsDef && clsDef.editor ) {
-    node.__editor__ = clsDef.editor;
+  if ( clsDef ) {
+    if ( clsDef.editor ) {
+      node.__editor__ = clsDef.editor;
+    }
+    if ( clsDef.name ) {
+      node.__displayName__ = clsDef.name;
+    }
   }
 
   for ( let k in node ) {

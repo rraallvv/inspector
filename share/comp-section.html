@@ -82,7 +82,7 @@
 
       _nameText ( target ) {
         if ( target ) {
-          return target.displayName ? target.displayName : EditorUI.toHumanText(target.__type__);
+          return target.__displayName__ || EditorUI.toHumanText(target.__type__);
         }
 
         return 'Unknown';
