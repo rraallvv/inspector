@@ -319,18 +319,9 @@
           return;
         }
 
-        let jsonObj = JSON.parse(info.json);
-        let assetType = jsonObj['asset-type'];
-        let metaCtor = Editor.metas[assetType];
-        if ( !metaCtor ) {
-          if ( cb ) {
-            cb ( new Error('Can not find meta by type ' + assetType) );
-          }
-          return;
-        }
-
-        let meta = new metaCtor();
-        meta.deserialize(jsonObj);
+        //
+        let meta = JSON.parse(info.json);
+        let assetType = meta['asset-type'];
         meta.__name__ = Path.basenameNoExt(info.assetPath);
         meta.__path__ = info.assetPath;
         meta.__mtime__ = info.assetMtime;
