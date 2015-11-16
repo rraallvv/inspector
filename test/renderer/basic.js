@@ -1,6 +1,6 @@
 'use strict';
 
-Editor.require('app://editor/test-utils/page-init-for-test');
+Editor.require('app://editor/test-utils/renderer/init');
 Editor.require('app://editor/page/register-ui-properties');
 Editor.require('app://editor/page/register-inspector');
 
@@ -32,22 +32,7 @@ let foobar = cc.Class({
   },
 });
 
-cc.engine = {
-  attachedObjsForEditor: {},
-  getInstanceById: function (uuid) {
-    return this.attachedObjsForEditor[uuid] || null;
-  },
-};
-
-let canvas = document.createElement('canvas');
-canvas.id = 'test-canvas';
-document.body.appendChild(canvas);
-cc.game.run({
-  width: 128,
-  height: 128,
-  id: canvas.id,
-  debugMode: cc.DebugMode.INFO
-});
+Helper.initGame();
 
 // =========================================
 
