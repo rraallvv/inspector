@@ -73,7 +73,11 @@
 
           let el = Polymer.Base.create( prefix + '-inspector', {
             target: this.target,
-          })
+          });
+          if ( !el ) {
+            Editor.error(`Can not create <${prefix}-inspector>, tag not found. Make sure you register it same as the kebab-case of your classname`);
+          }
+
           EditorUI.bind( this, 'target', el, 'target' );
           Polymer.dom(this.$.section).appendChild(el);
           this._el = el;
