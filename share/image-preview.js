@@ -7,6 +7,11 @@ Editor.registerElement({
       value: 'Unknown',
     },
 
+    target: {
+      type: Object,
+      value: null,
+    },
+
     path: {
       type: String,
       value: '',
@@ -19,19 +24,19 @@ Editor.registerElement({
     },
   },
 
-  _pathChanged: function () {
+  _pathChanged () {
     if ( !this.path )
       return;
 
     this._image = new Image();
-    this._image.onload = function () {
+    this._image.onload = () => {
       this.info = this._image.width + ' x ' + this._image.height;
       this.resize();
-    }.bind(this);
+    };
     this._image.src = this.path + '?' + this.mtime;
   },
 
-  resize: function () {
+  resize () {
     var bcr = this.$.content.getBoundingClientRect();
     var result = Editor.Utils.fitSize(
       this._image.width,
@@ -46,36 +51,30 @@ Editor.registerElement({
     this.repaint();
   },
 
-  repaint: function () {
+  repaint () {
     var ctx = this.$.canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
 
+    ctx.drawImage( this._image, 0, 0, this.$.canvas.width, this.$.canvas.height );
+
+    if ( this.target && this.target.type === 'sprite' ) {
+      var xRatio = this.$.canvas.width / this._image.width;
+      var yRatio = this.$.canvas.height / this._image.height;
+
+      ctx.beginPath();
+      ctx.rect(
+        this.target.trimX * xRatio,
+        this.target.trimY * yRatio,
+        this.target.width * xRatio,
+        this.target.height * yRatio
+      );
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = '#ff00ff';
+      ctx.stroke();
+    }
+
     // TODO
-    // if ( this.asset instanceof cc.Texture2D ) {
-      ctx.drawImage( this._image, 0, 0, this.$.canvas.width, this.$.canvas.height );
-
-      // var xRatio = this.$.canvas.width / this._image.width;
-      // var yRatio = this.$.canvas.height / this._image.height;
-
-      // if ( this.meta.subRawData ) {
-      //   if ( this.meta.type === Fire.TextureType.Sprite ) {
-      //     //for ( var subInfo of this.meta.subRawData ) {
-      //     this.meta.subRawData.forEach(function(subInfo) {
-      //       if ( subInfo.asset instanceof cc.SpriteFrame ) {
-      //         ctx.beginPath();
-      //         ctx.rect( subInfo.asset.trimX * xRatio,
-      //               subInfo.asset.trimY * yRatio,
-      //               subInfo.asset.width * xRatio,
-      //               subInfo.asset.height * yRatio );
-      //         ctx.lineWidth = 1;
-      //         ctx.strokeStyle = '#ff00ff';
-      //         ctx.stroke();
-      //       }
-      //     });
-      //   }
-      // }
-    // }
-    // else if ( this.asset instanceof cc.SpriteFrame ) {
+    // if ( this.asset instanceof cc.SpriteFrame ) {
     //   if ( this.rawTexture ) {
     //     ctx.drawImage( this.rawTexture.image,
     //             this.asset.trimX, this.asset.trimY, this.asset.width, this.asset.height,
