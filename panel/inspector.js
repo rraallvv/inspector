@@ -321,13 +321,13 @@
 
         //
         let meta = JSON.parse(info.json);
-        let assetType = meta['asset-type'];
+        meta.__assetType__ = info.assetType;
         meta.__name__ = Path.basenameNoExt(info.assetPath);
         meta.__path__ = info.assetPath;
         meta.__mtime__ = info.assetMtime;
 
         if ( cb ) {
-          cb ( null, assetType, meta );
+          cb ( null, info.defaultType, meta );
         }
       });
     },
