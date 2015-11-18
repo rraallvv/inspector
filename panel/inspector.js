@@ -326,6 +326,19 @@
         meta.__path__ = info.assetPath;
         meta.__mtime__ = info.assetMtime;
 
+        // map __subMetas__ to subMetas array
+        if ( meta.__subMetas__ ) {
+          let subMetas = [];
+          for ( let name in meta.__subMetas__ ) {
+            let subMeta = meta.__subMetas__[name];
+            subMeta.__name__ = name;
+            subMetas.push(subMeta);
+          }
+
+          meta.subMetas = subMetas;
+          delete meta.__subMetas__;
+        }
+
         if ( cb ) {
           cb ( null, info.defaultType, meta );
         }
@@ -350,9 +363,20 @@
     _onMetaApply ( event ) {
       event.stopPropagation();
 
-      let uuid = this._curInspector.target.uuid;
-      let jsonString = JSON.stringify(this._curInspector.target);
+      let meta = this._curInspector.target;
+      let uuid = meta.uuid;
+      let subMetas = {};
 
+      // map subMetas to table
+      if ( meta.subMetas ) {
+        meta.subMetas.forEach(meta => {
+          subMetas[meta.__name__] = meta;
+          delete meta.__name__;
+        });
+      }
+      meta.subMetas = subMetas;
+
+      let jsonString = JSON.stringify(meta);
       Editor.assetdb.saveMeta( uuid, jsonString );
     },
 

@@ -58,19 +58,23 @@ Editor.registerElement({
     ctx.drawImage( this._image, 0, 0, this.$.canvas.width, this.$.canvas.height );
 
     if ( this.target && this.target.type === 'sprite' ) {
-      var xRatio = this.$.canvas.width / this._image.width;
-      var yRatio = this.$.canvas.height / this._image.height;
+      if ( this.target.subMetas ) {
+        this.target.subMetas.forEach( meta => {
+          var xRatio = this.$.canvas.width / this._image.width;
+          var yRatio = this.$.canvas.height / this._image.height;
 
-      ctx.beginPath();
-      ctx.rect(
-        this.target.trimX * xRatio,
-        this.target.trimY * yRatio,
-        this.target.width * xRatio,
-        this.target.height * yRatio
-      );
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = '#ff00ff';
-      ctx.stroke();
+          ctx.beginPath();
+          ctx.rect(
+            meta.trimX * xRatio,
+            meta.trimY * yRatio,
+            meta.width * xRatio,
+            meta.height * yRatio
+          );
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = '#ff00ff';
+          ctx.stroke();
+        });
+      }
     }
 
     // TODO
