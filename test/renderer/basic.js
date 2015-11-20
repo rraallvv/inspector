@@ -40,6 +40,8 @@ let foobar = cc.Class({
   },
 });
 
+Helper.runGame();
+
 // =========================================
 
 describe('<editor-inspector>', function() {
