@@ -40,7 +40,7 @@ let foobar = cc.Class({
   },
 });
 
-Helper.initGame();
+Helper.runGame();
 
 // =========================================
 
@@ -70,7 +70,7 @@ describe('<editor-inspector>', function() {
       let h2 = foobarInspector.querySelector('h2');
       assert( h2.innerHTML, 'Custom Inspector' );
 
-      // done();
+      done();
     }, 500 );
   });
 
