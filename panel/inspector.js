@@ -203,12 +203,13 @@
               path = prop.path + subPath;
 
               let compProp = this._curInspector.get(Utils.compPath(path));
-              Editor.sendToPanel('scene.panel', 'scene:set-property', {
+              let info = {
                 id: compProp ? compProp.uuid : id,
                 path: Utils.normalizePath(path),
                 type: prop.type,
                 value: event.detail.value,
-              });
+              };
+              Editor.sendToPanel('scene.panel', 'scene:set-property', info);
               this._queryNodeAfter( id, 100 );
             });
 
@@ -596,6 +597,15 @@
     'asset-db:asset-changed' ( result ) {
       if ( this._curInspector && this._selectID === result.uuid ) {
         this.refresh();
+        return;
+      }
+
+      if ( this._selectType === 'asset' && this._curInspector.target ) {
+        let meta = this._curInspector.target;
+        if ( meta.subMetas.some( meta => { return meta.uuid === result.uuid; } ) ) {
+          this.refresh();
+          return;
+        }
       }
     },
 
