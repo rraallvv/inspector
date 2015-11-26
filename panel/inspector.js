@@ -90,6 +90,10 @@
     },
 
     startInspect ( type, id, timeout ) {
+      if ( this._selectType === type && this._selectID === id ) {
+        return;
+      }
+
       if ( typeof timeout !== 'number' ) {
         timeout = 0;
       }
@@ -203,8 +207,9 @@
               path = prop.path + subPath;
 
               let compProp = this._curInspector.get(Utils.compPath(path));
+              let instID = compProp ? compProp.uuid : id;
               let info = {
-                id: compProp ? compProp.uuid : id,
+                id: instID,
                 path: Utils.normalizePath(path),
                 type: prop.type,
                 value: event.detail.value,
@@ -568,6 +573,7 @@
         }
 
         //
+        this.hideLoader();
         this._queryNodeAfter( id, 100 );
       } else {
         this.inspect( node.__type__, id, node );
