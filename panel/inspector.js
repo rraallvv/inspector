@@ -418,7 +418,7 @@
 
       Editor.sendToPanel(
         'scene.panel',
-        'scene:component-remove',
+        'scene:remove-component',
         this._selectID,
         event.detail.uuid
       );
@@ -525,7 +525,7 @@
       let uuid = dragItems[0];
       Editor.sendToPanel(
         'scene.panel',
-        'scene:component-add',
+        'scene:add-component',
         this._selectID,
         uuid
       );
