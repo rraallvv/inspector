@@ -90,10 +90,6 @@
     },
 
     startInspect ( type, id, timeout ) {
-      if ( this._selectType === type && this._selectID === id ) {
-        return;
-      }
-
       if ( typeof timeout !== 'number' ) {
         timeout = 0;
       }
@@ -216,6 +212,15 @@
               };
               Editor.sendToPanel('scene.panel', 'scene:set-property', info);
               this._queryNodeAfter( id, 100 );
+            });
+
+            element.addEventListener('end-editing', event => {
+              if ( event.detail.cancel ) {
+                Editor.sendToPanel('scene.panel', 'scene:undo-cancel');
+                return;
+              }
+
+              Editor.sendToPanel('scene.panel', 'scene:undo-commit');
             });
 
             this._queryNodeAfter( id, 100 );
@@ -384,6 +389,7 @@
 
       let jsonString = JSON.stringify(meta);
       Editor.assetdb.saveMeta( uuid, jsonString );
+      this.showLoaderAfter(0);
     },
 
     _onPrefabSelect ( event ) {
