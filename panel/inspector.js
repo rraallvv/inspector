@@ -533,7 +533,7 @@
         'scene.panel',
         'scene:add-component',
         this._selectID,
-        uuid
+        Editor.compressUuid(uuid)
       );
     },
 
