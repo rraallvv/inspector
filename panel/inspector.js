@@ -204,11 +204,13 @@
 
               let compProp = this._curInspector.get(Utils.compPath(path));
               let instID = compProp ? compProp.uuid : id;
+              // HACK: we can not send { path, value } in a custom-event, otherwise it will invoke notifyPath in Polymer
+              let value = (event.detail.arraySize !== undefined) ? event.detail.arraySize : event.detail.value;
               let info = {
                 id: instID,
                 path: Utils.normalizePath(path),
                 type: prop.type,
-                value: event.detail.value,
+                value: value,
               };
               Editor.sendToPanel('scene.panel', 'scene:set-property', info);
               this._queryNodeAfter( id, 100 );
