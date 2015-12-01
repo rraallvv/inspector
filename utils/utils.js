@@ -115,6 +115,16 @@ function _buildProp ( node, nodeType, key, clsList, path, useArray, valAttrs ) {
     for ( let k in val ) {
       _buildProp( val, valAttrs.type, k, clsList, path, true );
     }
+  } else {
+    // if this is not a cc.ValueType and it has been register in Editor.properties
+    // that means users wants to customize its ui-control
+    let expand = !clsDef.extends || clsDef.extends.lastIndexOf('cc.ValueType') === -1;
+
+    if ( expand ) {
+      for ( let k in val ) {
+        _buildProp( val, valAttrs.type, k, clsList, path, false );
+      }
+    }
   }
 }
 
