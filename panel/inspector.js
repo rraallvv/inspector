@@ -339,17 +339,16 @@
         meta.__path__ = info.assetPath;
         meta.__mtime__ = info.assetMtime;
 
-        // map __subMetas__ to subMetas array
-        if ( meta.__subMetas__ ) {
+        // map subMetas object to subMetas array
+        if ( meta.subMetas ) {
           let subMetas = [];
-          for ( let name in meta.__subMetas__ ) {
-            let subMeta = meta.__subMetas__[name];
+          for ( let name in meta.subMetas ) {
+            let subMeta = meta.subMetas[name];
             subMeta.__name__ = name;
             subMetas.push(subMeta);
           }
 
           meta.subMetas = subMetas;
-          delete meta.__subMetas__;
         }
 
         if ( cb ) {
