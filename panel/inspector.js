@@ -209,7 +209,7 @@
               let info = {
                 id: instID,
                 path: Utils.normalizePath(path),
-                type: prop.type,
+                type: prop.attrs.type,
                 value: value,
               };
               Editor.sendToPanel('scene.panel', 'scene:set-property', info);
