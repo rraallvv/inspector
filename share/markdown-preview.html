@@ -1,0 +1,128 @@
+<dom-module id="inspector-markdown-preview">
+  <link rel="import" type="css" href="code-preview.paraiso.dark.css">
+
+  <template>
+    <style>
+      :host {
+        position: relative;
+        overflow-y: auto;
+        word-wrap: normal;
+
+        border: 1px solid black;
+        box-shadow: inset 0 0 8px 2px rgba(0,0,0,0.2);
+        background: #333;
+      }
+
+      @font-face {
+        font-family: 'DejaVu Sans Mono';
+        src: url('app://editor/static/fonts/DejaVuSansMono.ttf');
+        font-weight: normal;
+        font-style: normal;
+      }
+
+      pre {
+        margin: 0px;
+        padding: 10px;
+        font-size: 12px;
+        font-family: 'DejaVu Sans Mono';
+
+        -webkit-user-select: text;
+        cursor: auto;
+        white-space: pre-wrap;       /* CSS 3 */
+        white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+        white-space: -pre-wrap;      /* Opera 4-6 */
+        white-space: -o-pre-wrap;    /* Opera 7 */
+        word-wrap: break-word;  
+      }
+
+      pre h1 {
+        font-size: 1.5em;
+      }
+
+      pre h2 {
+        font-size: 1.3em;
+      }
+
+      pre h3 {
+        font-size: 1.2em;
+      }
+
+      pre h4 {
+        font-size: 1.1em;
+      }
+
+      pre h5 {
+        font-size: 1em;
+      }
+
+      pre::selection {
+        background: #007acc;
+      }
+
+      pre * {
+        -webkit-user-select: text;
+      }
+
+      pre *::selection {
+        background: #007acc;
+      }
+    </style>
+
+    <pre id="code"></pre>
+  </template>
+
+  <script>
+    'use strict';
+
+    Editor.registerElement({
+      properties: {
+        type: {
+          type: String,
+          value: 'unknown',
+          observer: '_typeChanged'
+        },
+
+        path: {
+          type: String,
+          value: '',
+          observer: '_pathChanged'
+        },
+      },
+
+      _pathChanged: function () {
+        if ( !this.path || this.type === 'unknown' ) {
+          return;
+        }
+
+        this._highlightCode();
+      },
+
+      _typeChanged: function () {
+        if ( !this.path || this.type === 'unknown' ) {
+          return;
+        }
+
+        this._highlightCode();
+      },
+
+      _highlightCode: function () {
+        const Hljs = require('highlight.js');
+        const Fs = require('fire-fs');
+        const marked = require('marked');
+
+        marked.setOptions({
+          highlight: function (code) {
+            return Hljs.highlightAuto(code).value;
+          }
+        });
+
+        let text = Fs.readFileSync( this.path, {encoding: 'utf-8'} );
+        let result = marked( text );
+
+        let codeDOM = Polymer.dom(this.$.code);
+        codeDOM.innerHTML = result;
+        // console.log(result);
+      },
+    });
+  </script>
+</dom-module>
