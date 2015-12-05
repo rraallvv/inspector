@@ -1,0 +1,19 @@
+<dom-module id="foobar-inspector">
+  <template>
+    <h2>Custom Inspector</h2>
+    <editor-prop prop="{{target.foo}}"></editor-prop>
+    <editor-prop prop="{{target.bar}}"></editor-prop>
+    <editor-prop prop="{{target.foobar}}"></editor-prop>
+    <fire-asset value="{{target.texture.value.uuid}}" type="asset"></fire-asset>
+  </template>
+
+  <script>
+    Editor.registerElement({
+      target: {
+        type: Object,
+        value: null,
+        notify: true,
+      },
+    });
+  </script>
+</dom-module>

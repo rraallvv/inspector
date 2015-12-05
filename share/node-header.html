@@ -1,56 +1,70 @@
 <dom-module id="inspector-node-header">
+  <template>
     <style>
-        :host {
-            flex: none;
-            padding-left: 10px;
-            padding-right: 10px;
-            padding-top: 5px;
-        }
+      :host {
+        flex: none;
+        padding-left: 10px;
+        /*padding-right: 10px;*/
+        padding-top: 5px;
+      }
 
-        editor-toolbar {
-            padding-bottom: 5px;
-            margin-bottom: 10px;
-        }
+      editor-toolbar {
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+      }
     </style>
 
-    <template>
-        <editor-toolbar>
-            <editor-checkbox disabled></editor-checkbox>
-            <editor-input class="flex-1" value="{{target.name.value}}"></editor-input>
-        </editor-toolbar>
-        <template is="dom-if" if="[[target.__prefab__]]">
-            <editor-toolbar class="end-justified">
-                <editor-label class="blue mini">prefab</editor-label>
-                <span class="flex-1"></span>
-                <editor-button on-click="_onPrefabSelect">Select</editor-button>
-                <editor-button on-click="_onPrefabRevert">Revert</editor-button>
-                <editor-button on-click="_onPrefabApply">Apply</editor-button>
-            </editor-toolbar>
-        </template>
+    <editor-toolbar>
+      <editor-checkbox checked="{{target.active.value}}"></editor-checkbox>
+      <editor-input class="flex-1" value="{{target.name.value}}"></editor-input>
+      <editor-button id="addCompBtn" on-click="_onPopupComponentMenu">
+        <i class="fa fa-plus"></i>
+      </editor-button>
+    </editor-toolbar>
+
+    <template is="dom-if" if="[[target.__prefab__]]">
+      <editor-toolbar class="end-justified">
+        <editor-label class="blue mini">prefab</editor-label>
+        <span class="flex-1"></span>
+        <editor-button on-click="_onPrefabSelect">Select</editor-button>
+        <editor-button on-click="_onPrefabRevert">Revert</editor-button>
+        <editor-button on-click="_onPrefabApply">Apply</editor-button>
+      </editor-toolbar>
     </template>
+  </template>
 
-    <script>
-        Editor.registerElement({
+  <script>
+    Editor.registerElement({
+      properties: {
+        target: {
+          type: Object,
+          value: null,
+          notify: true,
+        },
+      },
 
-            properties: {
-                target: {
-                    type: Object,
-                    value: null,
-                    notify: true,
-                },
-            },
+      _onPrefabSelect: function () {
+        this.fire('prefab-select');
+      },
 
-            _onPrefabSelect: function () {
-                this.fire('prefab-select');
-            },
+      _onPrefabApply: function () {
+        this.fire('prefab-apply');
+      },
 
-            _onPrefabApply: function () {
-                this.fire('prefab-apply');
-            },
+      _onPrefabRevert: function () {
+        this.fire('prefab-revert');
+      },
 
-            _onPrefabRevert: function () {
-                this.fire('prefab-revert');
-            },
-        });
-    </script>
+      _onPopupComponentMenu: function () {
+        var rect = this.$.addCompBtn.getBoundingClientRect();
+        Editor.sendToCore(
+          'inspector:popup-comp-menu',
+          rect.left,
+          rect.bottom + 5,
+          this.target.uuid,
+          Editor.requireIpcEvent
+        );
+      },
+    });
+  </script>
 </dom-module>

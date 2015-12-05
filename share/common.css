@@ -1,10 +1,11 @@
 :host {
-    @apply(--layout-vertical);
-    @apply(--layout-fit);
+  @apply(--layout-vertical);
+  @apply(--layout-fit);
 }
 
 .props {
-    overflow-y: auto;
-    padding-left: 10px;
-    padding-right: 10px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-left: 10px;
+  padding-right: 10px;
 }

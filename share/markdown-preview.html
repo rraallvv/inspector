@@ -1,11 +1,12 @@
-<dom-module id="inspector-code-preview">
+<dom-module id="inspector-markdown-preview">
   <link rel="import" type="css" href="code-preview.paraiso.dark.css">
 
   <template>
     <style>
       :host {
         position: relative;
-        overflow: auto;
+        overflow-y: auto;
+        word-wrap: normal;
 
         border: 1px solid black;
         box-shadow: inset 0 0 8px 2px rgba(0,0,0,0.2);
@@ -22,11 +23,36 @@
       pre {
         margin: 0px;
         padding: 10px;
-        font-size: 14px;
+        font-size: 12px;
         font-family: 'DejaVu Sans Mono';
 
         -webkit-user-select: text;
         cursor: auto;
+        white-space: pre-wrap;       /* CSS 3 */
+        white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+        white-space: -pre-wrap;      /* Opera 4-6 */
+        white-space: -o-pre-wrap;    /* Opera 7 */
+        word-wrap: break-word;  
+      }
+
+      pre h1 {
+        font-size: 1.5em;
+      }
+
+      pre h2 {
+        font-size: 1.3em;
+      }
+
+      pre h3 {
+        font-size: 1.2em;
+      }
+
+      pre h4 {
+        font-size: 1.1em;
+      }
+
+      pre h5 {
+        font-size: 1em;
       }
 
       pre::selection {
@@ -82,12 +108,19 @@
       _highlightCode: function () {
         const Hljs = require('highlight.js');
         const Fs = require('fire-fs');
+        const marked = require('marked');
+
+        marked.setOptions({
+          highlight: function (code) {
+            return Hljs.highlightAuto(code).value;
+          }
+        });
 
         let text = Fs.readFileSync( this.path, {encoding: 'utf-8'} );
-        let result = Hljs.highlight( this.type, text );
+        let result = marked( text );
 
         let codeDOM = Polymer.dom(this.$.code);
-        codeDOM.innerHTML = result.value;
+        codeDOM.innerHTML = result;
         // console.log(result);
       },
     });
