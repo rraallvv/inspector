@@ -182,6 +182,26 @@
               this._queryNodeAfter( id, 100 );
             });
 
+            element.addEventListener('array-size-changed', event => {
+              if ( element._rebuilding ) {
+                return;
+              }
+
+              element.dirty = true;
+              let path = event.detail.path;
+
+              let compProp = this._curInspector.get(Utils.compPath(path));
+              let instID = compProp ? compProp.uuid : id;
+              let info = {
+                id: instID,
+                path: Utils.normalizePath(path),
+                type: 'number',
+                value: event.detail.arraySize,
+              };
+              Editor.sendToPanel('scene.panel', 'scene:set-property', info);
+              this._queryNodeAfter( id, 100 );
+            });
+
             element.addEventListener('target-changed', event => {
               if ( element._rebuilding ) {
                 return;
@@ -193,27 +213,33 @@
               let prop = this._curInspector.get(event.detail.path);
 
               let idx;
-              while ( prop !== undefined && !prop.attrs ) {
+              while ( prop === undefined || !prop.attrs ) {
                 idx = path.lastIndexOf('.');
                 path = path.substring(0,idx);
                 prop = this._curInspector.get(path);
+
+                if ( idx === -1 ) {
+                  break;
+                }
               }
 
-              let subPath = Utils.stripValueInPath(event.detail.path.substring(idx));
-              path = prop.path + subPath;
+              if ( prop ) {
+                let subPath = Utils.stripValueInPath(event.detail.path.substring(idx));
+                path = prop.path + subPath;
 
-              let compProp = this._curInspector.get(Utils.compPath(path));
-              let instID = compProp ? compProp.uuid : id;
-              // HACK: we can not send { path, value } in a custom-event, otherwise it will invoke notifyPath in Polymer
-              let value = (event.detail.arraySize !== undefined) ? event.detail.arraySize : event.detail.value;
-              let info = {
-                id: instID,
-                path: Utils.normalizePath(path),
-                type: prop.attrs.type,
-                value: value,
-              };
-              Editor.sendToPanel('scene.panel', 'scene:set-property', info);
-              this._queryNodeAfter( id, 100 );
+                let compProp = this._curInspector.get(Utils.compPath(path));
+                let instID = compProp ? compProp.uuid : id;
+                let info = {
+                  id: instID,
+                  path: Utils.normalizePath(path),
+                  type: prop.attrs.type,
+                  value: event.detail.value,
+                };
+                Editor.sendToPanel('scene.panel', 'scene:set-property', info);
+                this._queryNodeAfter( id, 100 );
+              } else {
+                Editor.failed(`Failed to set property ${path}, property not found!`);
+              }
             });
 
             element.addEventListener('end-editing', event => {
