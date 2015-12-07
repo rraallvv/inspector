@@ -14,9 +14,8 @@ module.exports = {
     },
 
     'inspector:popup-comp-menu' ( event, x, y, nodeID ) {
-        let menuTmpl = Editor.menus['add-component'];
+        let menuTmpl = Editor.Menu.getMenu('add-component');
         if ( menuTmpl ) {
-            menuTmpl = JSON.parse(JSON.stringify(menuTmpl));
             menuTmpl = menuTmpl.map ( function ( item ) {
                 if ( item.params ) {
                     item.params.unshift(nodeID);
