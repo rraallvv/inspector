@@ -15,14 +15,11 @@ module.exports = {
 
     'inspector:popup-comp-menu' ( event, x, y, nodeID ) {
         let menuTmpl = Editor.Menu.getMenu('add-component');
-        if ( menuTmpl ) {
-            menuTmpl = menuTmpl.map ( function ( item ) {
-                if ( item.params ) {
-                    item.params.unshift(nodeID);
-                }
-                return item;
-            });
-        }
+        Editor.Menu.forEach(menuTmpl, item => {
+            if ( item.params ) {
+                item.params.unshift(nodeID);
+            }
+        });
 
         let editorMenu = new Editor.Menu(menuTmpl, event.sender);
         x = Math.floor(x);
