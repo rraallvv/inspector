@@ -15,7 +15,7 @@ module.exports = {
 
     'inspector:popup-comp-menu' ( event, x, y, nodeID ) {
         let menuTmpl = Editor.Menu.getMenu('add-component');
-        Editor.Menu.forEach(menuTmpl, item => {
+        Editor.Menu.walk(menuTmpl, item => {
             if ( item.params ) {
                 item.params.unshift(nodeID);
             }
