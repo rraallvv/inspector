@@ -182,6 +182,26 @@
               this._queryNodeAfter( id, 100 );
             });
 
+            element.addEventListener( 'reset-prop', event => {
+              if ( element._rebuilding ) {
+                return;
+              }
+
+              element.dirty = true;
+
+              let path = event.detail.path;
+              let type = event.detail.type;
+
+              let compProp = this._curInspector.get(Utils.compPath(path));
+
+              Editor.sendToPanel('scene.panel', 'scene:reset-property', {
+                id: compProp ? compProp.uuid : id,
+                path: Utils.normalizePath(path),
+                type: type,
+              });
+              this._queryNodeAfter( id, 100 );
+            });
+
             element.addEventListener('array-size-changed', event => {
               if ( element._rebuilding ) {
                 return;

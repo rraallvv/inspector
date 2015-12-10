@@ -32,10 +32,19 @@ function _buildProp ( node, nodeType, key, clsList, path, useArray, valAttrs ) {
     return;
 
   // get value type
-  let valType = valAttrs.type;
-  if ( val && typeof val === 'object' && val.__type__ ) {
-    valType = val.__type__;
-    delete val.__type__;
+  let valType;
+  if ( val !== null && val !== undefined ) {
+    valType = typeof val;
+    if ( valType === 'object' ) {
+      if ( val.__type__ ) {
+        valType = val.__type__;
+        delete val.__type__;
+      } else {
+        valType = valAttrs.type;
+      }
+    } else {
+      valType = valType.charAt(0).toUpperCase() + valType.slice(1);
+    }
   }
 
   // skip the property if it is array and attrs.type not defined
@@ -48,20 +57,25 @@ function _buildProp ( node, nodeType, key, clsList, path, useArray, valAttrs ) {
     return;
   }
 
-  // get type-chain for it
-  let valClsDef = clsList[valType];
+  // get extends ( NOTE: from attrs.type a.k.a: user define type )
+  let valClsDef = clsList[valAttrs.type];
+  if ( valClsDef && valClsDef.extends ) {
+    valAttrs.extends = valClsDef.extends.slice();
+  }
+
+  // get typename ( NOTE: from current type )
+  valClsDef = clsList[valType];
   if ( valClsDef ) {
     valAttrs.typename = valClsDef.name;
-    if ( valClsDef.extends ) {
-      valAttrs.extends = valClsDef.extends.slice();
-    }
   }
 
   //
-  if ( val && typeof val === 'object' ) {
+  if ( val !== null && val !== undefined && typeof val === 'object' ) {
     // NOTE: if we don't register the type in ui-property, we will expand it.
     let propType = valAttrs.type;
-    if ( !propType ) propType = valType;
+    if ( !propType ) {
+      propType = valType;
+    }
 
     //
     if ( Array.isArray(val) ) {
