@@ -68,6 +68,10 @@
         display: none;
       }
 
+      editor-checkbox {
+        margin-left: 5px;
+      }
+
       :host[folded] .content{
         display: none;
       }
@@ -79,16 +83,17 @@
       :host[focused] .title{
         color: #00a6ff;
       }
-
-      editor-checkbox {
-        margin-left: 5px;
-      }
     </style>
 
-    <div class="header" on-click="_onFoldClick">
+    <div class="header" id="header"
+      on-click="_onFoldClick"
+      on-keydown="_onKeyDown"
+      on-focus="_onFocus"
+      on-blur="_onBlur"
+      >
       <div class="layout horizontal center flex-1">
         <i class$="{{_foldClass(folded)}}"></i>
-        <editor-checkbox checked="{{target.enabled}}"></editor-checkbox>
+        <editor-checkbox checked="{{target.enabled}}" nofocus></editor-checkbox>
         <div class="title">{{_targetName(target)}}</div>
       </div>
       <div class="close" on-click="_onCloseClick">
@@ -110,11 +115,7 @@
     Editor.registerElement({
       behaviors: [EditorUI.focusable],
 
-      listeners: {
-        'focus': '_onFocus',
-        'blur': '_onBlur',
-        'keydown': '_onKeyDown'
-      },
+      listeners: {},
 
       properties: {
         target: {
@@ -136,7 +137,7 @@
       ],
 
       ready () {
-        this._initFocusable(this);
+        this._initFocusable(this.$.header);
       },
 
       _onFoldClick () {
@@ -258,9 +259,6 @@
       // },
 
       _onKeyDown (event) {
-        if ( Polymer.dom(event).localTarget !== this )
-          return;
-
         // press 'enter' and 'space'
         if (event.keyCode === 13 || event.keyCode === 32) {
           event.preventDefault();
@@ -290,4 +288,4 @@
       },
     });
   </script>
-</dom-module>
+
