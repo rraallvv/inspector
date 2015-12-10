@@ -183,12 +183,12 @@ let buildNode = function ( node, clsList, path, useArray ) {
 
 function normalizePath ( path ) {
   path = path.replace( /^target\./, '' );
-  path = path.replace( /^__comps__\.\d+\./, '' );
+  path = path.replace( /^__comps__\.#{0,1}\d+\./, '' );
 
   return path;
 }
 
-let _compReg = /^target\.__comps__\.\d+/;
+let _compReg = /^target\.__comps__\.#{0,1}\d+/;
 
 function isCompPath ( path ) {
   return _compReg.test(path);
