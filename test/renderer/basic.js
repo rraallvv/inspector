@@ -51,7 +51,7 @@ describe('<editor-inspector>', function() {
   it('should load and show custom inspector', function( done ) {
     let targetEL = Helper.targetEL;
 
-    let node = new cc.ENode();
+    let node = new cc.Node();
     node.addComponent(simple);
     node.addComponent(foobar);
 
