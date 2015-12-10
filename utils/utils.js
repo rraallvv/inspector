@@ -48,14 +48,17 @@ function _buildProp ( node, nodeType, key, clsList, path, useArray, valAttrs ) {
     return;
   }
 
-  //
-  if ( val && typeof val === 'object' ) {
-    // get type-chain for it
-    let valClsDef = clsList[valType];
-    if ( valClsDef && valClsDef.extends ) {
+  // get type-chain for it
+  let valClsDef = clsList[valType];
+  if ( valClsDef ) {
+    valAttrs.typename = valClsDef.name;
+    if ( valClsDef.extends ) {
       valAttrs.extends = valClsDef.extends.slice();
     }
+  }
 
+  //
+  if ( val && typeof val === 'object' ) {
     // NOTE: if we don't register the type in ui-property, we will expand it.
     let propType = valAttrs.type;
     if ( !propType ) propType = valType;
@@ -64,7 +67,16 @@ function _buildProp ( node, nodeType, key, clsList, path, useArray, valAttrs ) {
     if ( Array.isArray(val) ) {
       valType = 'Array';
     } else if ( Editor.properties && !Editor.properties[propType] ) {
-      valType = 'Object';
+      if (
+        !valAttrs.extends ||
+        (
+          valAttrs.extends.indexOf('cc.Node') === -1 &&
+          valAttrs.extends.indexOf('cc.Component') === -1 &&
+          valAttrs.extends.indexOf('cc.RawAsset') === -1
+        )
+      ) {
+        valType = 'Object';
+      }
     }
   }
 
