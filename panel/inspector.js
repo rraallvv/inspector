@@ -212,6 +212,20 @@
               let path = event.detail.path;
               let prop = this._curInspector.get(event.detail.path);
 
+              // if this is a enabled property
+              let _enabledReg = /^target\.__comps__\.\#\d+\.enabled/;
+              if ( _enabledReg.test(path) ) {
+                let compProp = this._curInspector.get(Utils.compPath(path));
+                let instID = compProp ? compProp.uuid : id;
+                Editor.sendToPanel('scene.panel', 'scene:set-property', {
+                  id: instID,
+                  path: Utils.normalizePath(path),
+                  type: 'boolean',
+                  value: event.detail.value,
+                });
+                return;
+              }
+
               let idx;
               while ( prop === undefined || !prop.attrs ) {
                 idx = path.lastIndexOf('.');

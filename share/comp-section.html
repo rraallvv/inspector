@@ -1,22 +1,120 @@
 <dom-module id="inspector-comp-section">
   <template>
-    <editor-section id="section" closeable activable
-      text="{{_nameText(target)}}"
-      on-close="_onClose"
-    >
+    <style>
+      :host {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        align-items: stretch;
+        box-sizing: border-box;
+        margin-bottom: 1px;
+
+        font-size: 1.2rem;
+      }
+
+      .header {
+        display: flex;
+        flex-flow: row;
+        align-items: center;
+        padding: 4px 0px 4px 6px;
+        font-weight: 700;
+        font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;
+
+        border-bottom: 1px solid #666;
+        margin-bottom: 5px;
+
+        color: #aaa;
+        font-weight: bold;
+        padding-bottom: 4px;
+        cursor: pointer;
+      }
+
+      .close {
+        text-align: center;
+        padding: 0px 4px;
+        width: 9px;
+        transition: width .5s ease;
+        overflow: hidden;
+        display: inline-block;
+        white-space: nowrap;
+        border-radius: 2px;
+      }
+
+      .close:hover {
+        color: #c80505;
+      }
+
+      .close:active {
+        color: #a30000;
+      }
+
+      .title {
+        text-transform: capitalize;
+      }
+
+      .fold {
+        text-align: center;
+        width: 10px;
+      }
+
+      .content {
+        display: flex;
+        flex-flow: column nowrap;
+        padding: 5px 0px 5px 6px;
+        font-size: 1.4rem;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      :host[folded] .content{
+        display: none;
+      }
+
+      :host[focused] .fold{
+        color: #00a6ff;
+      }
+
+      :host[focused] .title{
+        color: #00a6ff;
+      }
+
+      editor-checkbox {
+        margin-left: 5px;
+      }
+    </style>
+
+    <div class="header" on-click="_onFoldClick">
+      <div class="layout horizontal center flex-1">
+        <i class$="{{_foldClass(folded)}}"></i>
+        <editor-checkbox checked="{{target.enabled}}"></editor-checkbox>
+        <div class="title">{{_targetName(target)}}</div>
+      </div>
+      <div class="close" on-click="_onCloseClick">
+        <i class="fa fa-times"></i>
+      </div>
+    </div>
+    <div class="content" id="content">
       <template is="dom-if" if="{{!_customDraw(target)}}">
         <template is="dom-repeat" items="{{target.__props__}}">
           <editor-prop prop="{{item}}"></editor-prop>
         </template>
       </template>
-    </editor-section>
+    </div>
   </template>
 
   <script>
     'use strict';
 
     Editor.registerElement({
-      behaviors: [Polymer.Templatizer],
+      behaviors: [EditorUI.focusable],
+
+      listeners: {
+        'focus': '_onFocus',
+        'blur': '_onBlur',
+        'keydown': '_onKeyDown'
+      },
 
       properties: {
         target: {
@@ -25,11 +123,40 @@
           notify: true,
           // observer: '_targetChanged'
         },
+
+        folded: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
+        },
       },
 
       observers: [
         '_targetPropChanged(target.*)'
       ],
+
+      ready () {
+        this._initFocusable(this);
+      },
+
+      _onFoldClick () {
+        this.folded = !this.folded;
+      },
+
+      _foldClass ( folded ) {
+        if (folded) {
+          return 'fa fa-caret-right fold flex-none ';
+        }
+
+        return 'fa fa-caret-down fold flex-none';
+      },
+
+      _iconClass (icon) {
+        if (icon) {
+          return 'icon';
+        }
+        return 'hidden';
+      },
 
       _targetPropChanged ( info ) {
         if (info.path === 'target') {
@@ -69,7 +196,7 @@
           //   }
           // );
           // this._instance = inst;
-          // Polymer.dom(this.$.section).appendChild(this._instance.root);
+          // Polymer.dom(this.$.content).appendChild(this._instance.root);
 
           let el = Polymer.Base.create( prefix + '-inspector', {
             target: this.target,
@@ -79,12 +206,12 @@
           }
 
           EditorUI.bind( this, 'target', el, 'target' );
-          Polymer.dom(this.$.section).appendChild(el);
+          Polymer.dom(this.$.content).appendChild(el);
           this._el = el;
         });
       },
 
-      _nameText ( target ) {
+      _targetName ( target ) {
         if ( target ) {
           return target.__displayName__ || EditorUI.toHumanText(target.__type__);
         }
@@ -130,10 +257,34 @@
       //   }
       // },
 
-      _onClose ( event ) {
+      _onKeyDown (event) {
+        if ( Polymer.dom(event).localTarget !== this )
+          return;
+
+        // press 'enter' and 'space'
+        if (event.keyCode === 13 || event.keyCode === 32) {
+          event.preventDefault();
+          event.stopPropagation();
+          this.folded = !this.folded;
+        }
+        // press left
+        else if (event.keyCode === 37) {
+          event.preventDefault();
+          event.stopPropagation();
+          this.folded = true;
+        }
+        // press right
+        else if (event.keyCode === 39) {
+          event.preventDefault();
+          event.stopPropagation();
+          this.folded = false;
+        }
+      },
+
+      _onCloseClick (event) {
         event.stopPropagation();
 
-        this.fire( 'remove-comp', {
+        this.fire('remove-comp', {
           uuid: this.target.uuid,
         });
       },

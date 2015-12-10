@@ -13,6 +13,9 @@ describe('basic testing', function() {
     expect ( normalizePath('target.__comps__.0.position.x') ).to.be.equal('position.x');
     expect ( normalizePath('target.__comps__.10.foobar.foo') ).to.be.equal('foobar.foo');
     expect ( normalizePath('target.__comps__.999.foobar.foo.x') ).to.be.equal('foobar.foo.x');
+    expect ( normalizePath('target.__comps__.#0.position.x') ).to.be.equal('position.x');
+    expect ( normalizePath('target.__comps__.#10.foobar.foo') ).to.be.equal('foobar.foo');
+    expect ( normalizePath('target.__comps__.#999.foobar.foo.x') ).to.be.equal('foobar.foo.x');
   });
 });
 
