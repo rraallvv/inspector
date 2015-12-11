@@ -45,6 +45,8 @@ function _buildProp ( node, nodeType, key, clsList, path, useArray, valAttrs ) {
     } else {
       valType = valType.charAt(0).toUpperCase() + valType.slice(1);
     }
+  } else {
+    valType = valAttrs.type; // if we don't have valType (such as an object or an asset), use attr's type
   }
 
   // skip the property if it is array and attrs.type not defined
