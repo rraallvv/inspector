@@ -26,7 +26,7 @@
       "title": "Inspector",
       "icon": "panel/icon.png",
       "width": 300,
-      "min-width": 250,
+      "min-width": 300,
       "messages": [
         "selection:activated",
         "scene:reply-query-node",
