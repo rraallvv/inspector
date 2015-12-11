@@ -23,6 +23,14 @@
 
       <inspector-comps-section target="{{target}}">
       </inspector-comps-section>
+
+      <div id="addCompBtn" class="layout horizontal center-center">
+        <editor-button
+          style="width: 240px;"
+          on-click="_onPopupComponentMenu"
+          nofocus
+          >Add Component</editor-button>
+      </div>
     </div>
   </template>
 
@@ -34,6 +42,17 @@
           value: null,
           notify: true,
         },
+      },
+
+      _onPopupComponentMenu: function () {
+        var rect = this.$.addCompBtn.getBoundingClientRect();
+        Editor.sendToCore(
+          'inspector:popup-comp-menu',
+          rect.left + 20,
+          rect.bottom + 5,
+          this.target.uuid,
+          Editor.requireIpcEvent
+        );
       },
     });
   </script>
