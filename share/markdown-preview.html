@@ -8,9 +8,21 @@
         overflow-y: auto;
         word-wrap: normal;
 
-        border: 1px solid black;
-        box-shadow: inset 0 0 8px 2px rgba(0,0,0,0.2);
-        background: #333;
+        color: #aaa;
+
+        -webkit-user-select: text;
+      }
+
+      :host::selection {
+        background: #007acc;
+      }
+
+      :host * {
+        -webkit-user-select: text;
+      }
+
+      :host *::selection {
+        background: #007acc;
       }
 
       @font-face {
@@ -26,13 +38,12 @@
         font-size: 12px;
         font-family: 'DejaVu Sans Mono';
 
-        -webkit-user-select: text;
         cursor: auto;
         white-space: pre-wrap;       /* CSS 3 */
         white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
         white-space: -pre-wrap;      /* Opera 4-6 */
         white-space: -o-pre-wrap;    /* Opera 7 */
-        word-wrap: break-word;  
+        word-wrap: break-word;
       }
 
       pre h1 {
@@ -54,21 +65,9 @@
       pre h5 {
         font-size: 1em;
       }
-
-      pre::selection {
-        background: #007acc;
-      }
-
-      pre * {
-        -webkit-user-select: text;
-      }
-
-      pre *::selection {
-        background: #007acc;
-      }
     </style>
 
-    <pre id="code"></pre>
+    <pre id="code" class="fit"></pre>
   </template>
 
   <script>
@@ -89,7 +88,7 @@
         },
       },
 
-      _pathChanged: function () {
+      _pathChanged () {
         if ( !this.path || this.type === 'unknown' ) {
           return;
         }
@@ -97,7 +96,7 @@
         this._highlightCode();
       },
 
-      _typeChanged: function () {
+      _typeChanged () {
         if ( !this.path || this.type === 'unknown' ) {
           return;
         }
@@ -105,7 +104,7 @@
         this._highlightCode();
       },
 
-      _highlightCode: function () {
+      _highlightCode () {
         const Hljs = require('highlight.js');
         const Fs = require('fire-fs');
         const marked = require('marked');
