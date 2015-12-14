@@ -24,12 +24,14 @@ function _buildProp ( node, nodeType, key, clsList, path, useArray, valAttrs ) {
   }
 
   // skip the property if attrs not found
-  if ( !valAttrs )
+  if ( !valAttrs ) {
     return;
+  }
 
   // skip hidden properties
-  if ( valAttrs.visible === false )
+  if ( valAttrs.visible === false ) {
     return;
+  }
 
   // get value type
   let valType;
