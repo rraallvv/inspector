@@ -24,8 +24,8 @@
       <inspector-comps-section target="{{target}}">
       </inspector-comps-section>
 
-      <div id="addCompBtn" class="layout horizontal center-center">
-        <editor-button
+      <div class="add-comp-btn layout horizontal center-center">
+        <editor-button id="addCompBtn"
           style="width: 240px;"
           on-click="_onPopupComponentMenu"
           nofocus
@@ -48,7 +48,7 @@
         var rect = this.$.addCompBtn.getBoundingClientRect();
         Editor.sendToCore(
           'inspector:popup-comp-menu',
-          rect.left + 20,
+          rect.left + 5,
           rect.bottom + 5,
           this.target.uuid,
           Editor.requireIpcEvent
