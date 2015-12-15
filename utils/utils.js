@@ -74,7 +74,7 @@ function _buildProp ( node, nodeType, key, clsList, path, useArray, valAttrs ) {
   }
 
   //
-  if ( val !== null && val !== undefined && typeof val === 'object' ) {
+  if ( typeof val === 'object' ) {
     // NOTE: if we don't register the type in ui-property, we will expand it.
     let propType = valAttrs.type;
     if ( !propType ) {
@@ -93,7 +93,11 @@ function _buildProp ( node, nodeType, key, clsList, path, useArray, valAttrs ) {
           valAttrs.extends.indexOf('cc.RawAsset') === -1
         )
       ) {
-        valType = 'Object';
+        if ( cc.js._getClassById(valAttrs.type) ) {
+          valType = 'Object';
+        } else {
+          valType = 'error-unknown';
+        }
       }
     }
   }
