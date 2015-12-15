@@ -12,10 +12,10 @@ Editor.registerElement({
       value: null,
     },
 
-    path: {
+    uuid: {
       type: String,
       value: '',
-      observer: '_pathChanged'
+      observer: '_uuidChanged'
     },
 
     mtime: {
@@ -24,8 +24,8 @@ Editor.registerElement({
     },
   },
 
-  _pathChanged () {
-    if ( !this.path )
+  _uuidChanged () {
+    if ( !this.uuid )
       return;
 
     this._image = new Image();
@@ -33,7 +33,7 @@ Editor.registerElement({
       this.info = this._image.width + ' x ' + this._image.height;
       this.resize();
     };
-    this._image.src = this.path + '?' + this.mtime;
+    this._image.src = 'uuid://' + this.uuid + '?' + this.mtime;
   },
 
   resize () {
