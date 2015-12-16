@@ -27,7 +27,7 @@ Editor.registerElement({
   // true = sprie false = sprite frame
   _getSize: function () {
     var width = 0, height = 0;
-    if (this.target.type === 'sprite') {
+    if (this.target.__assetType__ === 'texture' && this.target.type === 'sprite') {
       width = this._image.width;
       height = this._image.height;
     }
@@ -35,7 +35,7 @@ Editor.registerElement({
       width = this.target.width;
       height = this.target.height;
     }
-    return { "width": width, "height": height };
+    return { width: width, height: height };
   },
 
   _uuidChanged () {
@@ -44,7 +44,8 @@ Editor.registerElement({
 
     this._image = new Image();
     this._image.onload = () => {
-      this.info = this._getSize().width + ' x ' + this._getSize().height;
+      let size = this._getSize();
+      this.info = size.width + ' x ' + size.height;
       this.resize();
     };
     this._image.src = 'uuid://' + this.uuid + '?' + this.mtime;
@@ -52,12 +53,12 @@ Editor.registerElement({
 
   resize () {
     var bcr = this.$.content.getBoundingClientRect();
-
+    let size = this._getSize();
     var result = Editor.Utils.fitSize(
-        this._getSize().width,
-        this._getSize().height,
-        bcr.width,
-        bcr.height
+      size.width,
+      size.height,
+      bcr.width,
+      bcr.height
     );
 
     this.$.canvas.width = Math.ceil(result[0]);
@@ -100,8 +101,8 @@ Editor.registerElement({
     else if ( this.target.__assetType__ === 'sprite-frame' ) {
 
       ctx.drawImage(this._image, this.target.trimX, this.target.trimY,
-          this.target.width, this.target.height, 0, 0,
-          this.$.canvas.width, this.$.canvas.height
+        this.target.width, this.target.height, 0, 0,
+        this.$.canvas.width, this.$.canvas.height
       );
 
       if (this.target.rotated) {
