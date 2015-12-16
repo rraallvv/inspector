@@ -13,7 +13,7 @@
   },
   "main": "main.js",
   "menus": {
-    "Panel/Inspector": {
+    "i18n:MAIN_MENU.panel.title/i18n:MAIN_MENU.panel.inspector": {
       "icon": "panel/icon.png",
       "accelerator": "CmdOrCtrl+3",
       "message": "inspector:open"
@@ -23,7 +23,7 @@
     "panel": {
       "frame": "panel/inspector.html",
       "type": "dockable",
-      "title": "Inspector",
+      "title": "i18n:MAIN_MENU.panel.inspector",
       "icon": "panel/icon.png",
       "width": 300,
       "min-width": 300,
