@@ -76,7 +76,7 @@ Editor.registerElement({
     var ctx = this.$.canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
 
-    if ( this.target.type === 'sprite' ) {
+    if ( this.target.__assetType__ === 'texture' && this.target.type === 'sprite' ) {
 
       ctx.drawImage( this._image, 0, 0, this.$.canvas.width, this.$.canvas.height );
 
