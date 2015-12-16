@@ -24,13 +24,27 @@ Editor.registerElement({
     },
   },
 
+  // true = sprie false = sprite frame
+  _getSize: function () {
+    var width = 0, height = 0;
+    if (this.target.type === 'sprite') {
+      width = this._image.width;
+      height = this._image.height;
+    }
+    else if ( this.target.__assetType__ === 'sprite-frame' ) {
+      width = this.target.width;
+      height = this.target.height;
+    }
+    return { "width": width, "height": height };
+  },
+
   _uuidChanged () {
     if ( !this.uuid )
       return;
 
     this._image = new Image();
     this._image.onload = () => {
-      this.info = this._image.width + ' x ' + this._image.height;
+      this.info = this._getSize().width + ' x ' + this._getSize().height;
       this.resize();
     };
     this._image.src = 'uuid://' + this.uuid + '?' + this.mtime;
@@ -38,26 +52,33 @@ Editor.registerElement({
 
   resize () {
     var bcr = this.$.content.getBoundingClientRect();
+
     var result = Editor.Utils.fitSize(
-      this._image.width,
-      this._image.height,
-      bcr.width,
-      bcr.height
+        this._getSize().width,
+        this._getSize().height,
+        bcr.width,
+        bcr.height
     );
+
     this.$.canvas.width = Math.ceil(result[0]);
     this.$.canvas.height = Math.ceil(result[1]);
-
     //
     this.repaint();
   },
 
   repaint () {
+
+    if ( !this.target ) {
+      return;
+    }
+
     var ctx = this.$.canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
 
-    ctx.drawImage( this._image, 0, 0, this.$.canvas.width, this.$.canvas.height );
+    if ( this.target.type === 'sprite' ) {
 
-    if ( this.target && this.target.type === 'sprite' ) {
+      ctx.drawImage( this._image, 0, 0, this.$.canvas.width, this.$.canvas.height );
+
       if ( this.target.subMetas ) {
         this.target.subMetas.forEach( meta => {
           var xRatio = this.$.canvas.width / this._image.width;
@@ -76,22 +97,17 @@ Editor.registerElement({
         });
       }
     }
+    else if ( this.target.__assetType__ === 'sprite-frame' ) {
 
-    // TODO
-    // if ( this.asset instanceof cc.SpriteFrame ) {
-    //   if ( this.rawTexture ) {
-    //     ctx.drawImage( this.rawTexture.image,
-    //             this.asset.trimX, this.asset.trimY, this.asset.width, this.asset.height,
-    //             0, 0, this.$.canvas.width, this.$.canvas.height
-    //            );
-    //   }
+      ctx.drawImage(this._image, this.target.trimX, this.target.trimY,
+          this.target.width, this.target.height, 0, 0,
+          this.$.canvas.width, this.$.canvas.height
+      );
 
-    //   this.$.dragleft.style.display = 'block';
-    //   this.$.dragtop.style.display = 'block';
-    //   this.$.dragbottom.style.display = 'block';
-    //   this.$.dragright.style.display = 'block';
+      if (this.target.rotated) {
+        //TODO
+      }
 
-    //   this.updateLine();
-    // }
+    }
   },
 });
