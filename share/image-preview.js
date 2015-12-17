@@ -27,8 +27,7 @@ Editor.registerElement({
   // true = sprie false = sprite frame
   _getSize: function () {
     let width = 0, height = 0;
-    if (this.target.__assetType__ === 'texture' &&
-       (this.target.type === 'sprite' || this.target.type === 'raw')) {
+    if (this.target.__assetType__ === 'texture') {
       width = this._image.width;
       height = this._image.height;
     }
@@ -88,8 +87,7 @@ Editor.registerElement({
     let canvasHeight = this.$.canvas.height;
 
 
-    if ( this.target.__assetType__ === 'texture' &&
-       (this.target.type === 'sprite' || this.target.type === 'raw') ) {
+    if ( this.target.__assetType__ === 'texture' ) {
 
       ctx.drawImage( this._image, 0, 0, canvasWidth, canvasHeight );
 
