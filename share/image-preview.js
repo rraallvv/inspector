@@ -26,7 +26,7 @@ Editor.registerElement({
 
   // true = sprie false = sprite frame
   _getSize: function () {
-    var width = 0, height = 0;
+    let width = 0, height = 0;
     if (this.target.__assetType__ === 'texture' && this.target.type === 'sprite') {
       width = this._image.width;
       height = this._image.height;
@@ -52,38 +52,48 @@ Editor.registerElement({
   },
 
   resize () {
-    var bcr = this.$.content.getBoundingClientRect();
+    let bcr = this.$.content.getBoundingClientRect();
     let size = this._getSize();
-    var result = Editor.Utils.fitSize(
+    let result = Editor.Utils.fitSize(
       size.width,
       size.height,
       bcr.width,
       bcr.height
     );
 
+    if ( this.target.rotated ) {
+      this._scalingSize = {
+        width: Math.ceil(result[1]),
+        height: Math.ceil(result[0])
+      }
+    }
+
     this.$.canvas.width = Math.ceil(result[0]);
     this.$.canvas.height = Math.ceil(result[1]);
+
     //
     this.repaint();
   },
 
   repaint () {
-
     if ( !this.target ) {
       return;
     }
 
-    var ctx = this.$.canvas.getContext('2d');
+    let ctx = this.$.canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
+
+    let canvasWidth = this.$.canvas.width;
+    let canvasHeight = this.$.canvas.height;
 
     if ( this.target.__assetType__ === 'texture' && this.target.type === 'sprite' ) {
 
-      ctx.drawImage( this._image, 0, 0, this.$.canvas.width, this.$.canvas.height );
+      ctx.drawImage( this._image, 0, 0, canvasWidth, canvasHeight );
 
       if ( this.target.subMetas ) {
         this.target.subMetas.forEach( meta => {
-          var xRatio = this.$.canvas.width / this._image.width;
-          var yRatio = this.$.canvas.height / this._image.height;
+          let xRatio = canvasWidth / this._image.width;
+          let yRatio = canvasHeight / this._image.height;
 
           ctx.beginPath();
           ctx.rect(
@@ -99,16 +109,34 @@ Editor.registerElement({
       }
     }
     else if ( this.target.__assetType__ === 'sprite-frame' ) {
+      let xPos, yPos, trimWidth, trimHeight;
+      if ( this.target.rotated ) {
+        let tempXPos = canvasWidth / 2;
+        let tempYPos = canvasHeight / 2;
+        ctx.translate(tempXPos, tempYPos);
+        ctx.rotate(-90 * Math.PI / 180);
+        ctx.translate(-tempXPos, -tempYPos);
 
-      ctx.drawImage(this._image, this.target.trimX, this.target.trimY,
-        this.target.width, this.target.height, 0, 0,
-        this.$.canvas.width, this.$.canvas.height
-      );
-
-      if (this.target.rotated) {
-        //TODO
+        xPos = canvasWidth / 2 - this._scalingSize.width / 2;
+        yPos = canvasHeight / 2 - this._scalingSize.height / 2;
+        trimWidth = this.target.height;
+        trimHeight = this.target.width;
+        canvasWidth = this.$.canvas.height;
+        canvasHeight = this.$.canvas.width;
+      }
+      else {
+        xPos = 0; yPos = 0;
+        trimWidth = this.target.width;
+        trimHeight = this.target.height;
+        canvasWidth = this.$.canvas.width;
+        canvasHeight = this.$.canvas.height;
       }
 
+      ctx.drawImage(
+          this._image,
+          this.target.trimX, this.target.trimY, trimWidth, trimHeight,
+          xPos, yPos, canvasWidth, canvasHeight
+      );
     }
   },
 });
