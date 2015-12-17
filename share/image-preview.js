@@ -61,14 +61,21 @@ Editor.registerElement({
       bcr.height
     );
 
+    if ( this.target.rotated ) {
+      this._scalingSize = {
+        width: Math.ceil(result[1]),
+        height: Math.ceil(result[0])
+      }
+    }
+
     this.$.canvas.width = Math.ceil(result[0]);
     this.$.canvas.height = Math.ceil(result[1]);
+
     //
     this.repaint();
   },
 
   repaint () {
-
     if ( !this.target ) {
       return;
     }
@@ -76,14 +83,17 @@ Editor.registerElement({
     var ctx = this.$.canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
 
+    var canvasWidth = this.$.canvas.width;
+    var canvasHeight = this.$.canvas.height;
+
     if ( this.target.__assetType__ === 'texture' && this.target.type === 'sprite' ) {
 
-      ctx.drawImage( this._image, 0, 0, this.$.canvas.width, this.$.canvas.height );
+      ctx.drawImage( this._image, 0, 0, canvasWidth, canvasHeight );
 
       if ( this.target.subMetas ) {
         this.target.subMetas.forEach( meta => {
-          var xRatio = this.$.canvas.width / this._image.width;
-          var yRatio = this.$.canvas.height / this._image.height;
+          var xRatio = canvasWidth / this._image.width;
+          var yRatio = canvasHeight / this._image.height;
 
           ctx.beginPath();
           ctx.rect(
@@ -99,16 +109,34 @@ Editor.registerElement({
       }
     }
     else if ( this.target.__assetType__ === 'sprite-frame' ) {
+      var xPos, yPos, trimWidth, trimHeight;
+      if ( this.target.rotated ) {
+        var tempXPos = canvasWidth / 2;
+        var tempYPos = canvasHeight / 2;
+        ctx.translate(tempXPos, tempYPos);
+        ctx.rotate(-90 * Math.PI / 180);
+        ctx.translate(-tempXPos, -tempYPos);
 
-      ctx.drawImage(this._image, this.target.trimX, this.target.trimY,
-        this.target.width, this.target.height, 0, 0,
-        this.$.canvas.width, this.$.canvas.height
-      );
-
-      if (this.target.rotated) {
-        //TODO
+        xPos = canvasWidth / 2 - this._scalingSize.width / 2;
+        yPos = canvasHeight / 2 - this._scalingSize.height / 2;
+        trimWidth = this.target.height;
+        trimHeight = this.target.width;
+        canvasWidth = this.$.canvas.height;
+        canvasHeight = this.$.canvas.width;
+      }
+      else {
+        xPos = 0; yPos = 0;
+        trimWidth = this.target.width;
+        trimHeight = this.target.height;
+        canvasWidth = this.$.canvas.width;
+        canvasHeight = this.$.canvas.height;
       }
 
+      ctx.drawImage(
+          this._image,
+          this.target.trimX, this.target.trimY, trimWidth, trimHeight,
+          xPos, yPos, canvasWidth, canvasHeight
+      );
     }
   },
 });
