@@ -49,7 +49,7 @@
       }
 
       .title {
-        text-transform: capitalize;
+        margin-left: 5px;
       }
 
       .fold {
@@ -93,7 +93,7 @@
       >
       <div class="layout horizontal center flex-1">
         <i class$="{{_foldClass(folded)}}"></i>
-        <editor-checkbox checked="{{target.enabled}}" nofocus></editor-checkbox>
+        <editor-checkbox checked="{{target.enabled}}" nofocus hidden="[[!target.__editor__._showTick]]"></editor-checkbox>
         <div class="title">{{_targetName(target)}}</div>
       </div>
       <div class="close" on-click="_onCloseClick">
