@@ -26,7 +26,7 @@ Editor.registerElement({
 
   // true = sprie false = sprite frame
   _getSize: function () {
-    var width = 0, height = 0;
+    let width = 0, height = 0;
     if (this.target.__assetType__ === 'texture' && this.target.type === 'sprite') {
       width = this._image.width;
       height = this._image.height;
@@ -52,9 +52,9 @@ Editor.registerElement({
   },
 
   resize () {
-    var bcr = this.$.content.getBoundingClientRect();
+    let bcr = this.$.content.getBoundingClientRect();
     let size = this._getSize();
-    var result = Editor.Utils.fitSize(
+    let result = Editor.Utils.fitSize(
       size.width,
       size.height,
       bcr.width,
@@ -80,11 +80,11 @@ Editor.registerElement({
       return;
     }
 
-    var ctx = this.$.canvas.getContext('2d');
+    let ctx = this.$.canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
 
-    var canvasWidth = this.$.canvas.width;
-    var canvasHeight = this.$.canvas.height;
+    let canvasWidth = this.$.canvas.width;
+    let canvasHeight = this.$.canvas.height;
 
     if ( this.target.__assetType__ === 'texture' && this.target.type === 'sprite' ) {
 
@@ -92,8 +92,8 @@ Editor.registerElement({
 
       if ( this.target.subMetas ) {
         this.target.subMetas.forEach( meta => {
-          var xRatio = canvasWidth / this._image.width;
-          var yRatio = canvasHeight / this._image.height;
+          let xRatio = canvasWidth / this._image.width;
+          let yRatio = canvasHeight / this._image.height;
 
           ctx.beginPath();
           ctx.rect(
@@ -109,10 +109,10 @@ Editor.registerElement({
       }
     }
     else if ( this.target.__assetType__ === 'sprite-frame' ) {
-      var xPos, yPos, trimWidth, trimHeight;
+      let xPos, yPos, trimWidth, trimHeight;
       if ( this.target.rotated ) {
-        var tempXPos = canvasWidth / 2;
-        var tempYPos = canvasHeight / 2;
+        let tempXPos = canvasWidth / 2;
+        let tempYPos = canvasHeight / 2;
         ctx.translate(tempXPos, tempYPos);
         ctx.rotate(-90 * Math.PI / 180);
         ctx.translate(-tempXPos, -tempYPos);
