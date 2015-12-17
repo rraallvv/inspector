@@ -110,82 +110,98 @@
   </template>
 
   <script>
-    'use strict';
+    (() => {
+      'use strict';
 
-    Editor.registerElement({
-      behaviors: [EditorUI.focusable],
+      let _url2imported = {};
 
-      listeners: {},
+      Editor.registerElement({
+        behaviors: [EditorUI.focusable],
 
-      properties: {
-        target: {
-          type: Object,
-          value: null,
-          notify: true,
-          // observer: '_targetChanged'
+        listeners: {},
+
+        properties: {
+          target: {
+            type: Object,
+            value: null,
+            notify: true,
+            // observer: '_targetChanged'
+          },
+
+          folded: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true,
+          },
         },
 
-        folded: {
-          type: Boolean,
-          value: false,
-          reflectToAttribute: true,
+        observers: [
+          '_targetPropChanged(target.*)'
+        ],
+
+        ready () {
+          this._initFocusable(this.$.header);
         },
-      },
 
-      observers: [
-        '_targetPropChanged(target.*)'
-      ],
+        _onFoldClick () {
+          this.folded = !this.folded;
+        },
 
-      ready () {
-        this._initFocusable(this.$.header);
-      },
+        _foldClass ( folded ) {
+          if (folded) {
+            return 'fa fa-caret-right fold flex-none ';
+          }
 
-      _onFoldClick () {
-        this.folded = !this.folded;
-      },
+          return 'fa fa-caret-down fold flex-none';
+        },
 
-      _foldClass ( folded ) {
-        if (folded) {
-          return 'fa fa-caret-right fold flex-none ';
-        }
+        _iconClass (icon) {
+          if (icon) {
+            return 'icon';
+          }
+          return 'hidden';
+        },
 
-        return 'fa fa-caret-down fold flex-none';
-      },
-
-      _iconClass (icon) {
-        if (icon) {
-          return 'icon';
-        }
-        return 'hidden';
-      },
-
-      _targetPropChanged ( info ) {
-        if (info.path === 'target') {
-          this._rebuild();
-          return;
-        }
-
-        this._forwardParentPath(info.path, info.value);
-      },
-
-      _forwardParentPath: function(path, value) {
-        if (this._el) {
-          this._el.notifyPath(path, value, true);
-        }
-      },
-
-      _rebuild () {
-        if ( !this.target || !this.target.__editor__ || !this.target.__editor__.inspector ) {
-          return;
-        }
-
-        let url = this.target.__editor__.inspector;
-        EditorUI.import( url, err => {
-          if ( err ) {
-            Editor.error(`${err.message}`);
+        _targetPropChanged ( info ) {
+          if (info.path === 'target') {
+            this._rebuild();
             return;
           }
 
+          this._forwardParentPath(info.path, info.value);
+        },
+
+        _forwardParentPath: function(path, value) {
+          if (this._el) {
+            this._el.notifyPath(path, value, true);
+          }
+        },
+
+        _rebuild () {
+          if ( !this.target || !this.target.__editor__ || !this.target.__editor__.inspector ) {
+            return;
+          }
+
+          let url = this.target.__editor__.inspector;
+
+          // NOTE: DO NOT import if we already load it. this is because when touch <head>, a page repaint will happen
+          if ( _url2imported[url] ) {
+            this._appendElement();
+            return;
+          }
+
+          EditorUI.import( url, err => {
+            if ( err ) {
+              Editor.error(`${err.message}`);
+              return;
+            }
+
+            _url2imported[url] = true;
+            this._appendElement();
+          });
+        },
+
+        _appendElement () {
           let prefix = EditorUI.kebabCase(this.target.__type__);
 
           // TODO
@@ -209,83 +225,83 @@
           EditorUI.bind( this, 'target', el, 'target' );
           Polymer.dom(this.$.content).appendChild(el);
           this._el = el;
-        });
-      },
+        },
 
-      _targetName ( target ) {
-        if ( target ) {
-          return target.__displayName__ || EditorUI.toHumanText(target.__type__);
-        }
+        _targetName ( target ) {
+          if ( target ) {
+            return target.__displayName__ || EditorUI.toHumanText(target.__type__);
+          }
 
-        return 'Unknown';
-      },
+          return 'Unknown';
+        },
 
-      _customDraw ( target ) {
-        if ( target && target.__editor__ && target.__editor__.inspector ) {
-          return true;
-        }
-        return false;
-      },
+        _customDraw ( target ) {
+          if ( target && target.__editor__ && target.__editor__.inspector ) {
+            return true;
+          }
+          return false;
+        },
 
-      // DISABLE
-      // _props ( target ) {
-      //   var props = [];
-      //   for ( var p in target ) {
-      //     if ( p === '__type__' )
-      //       continue;
+        // DISABLE
+        // _props ( target ) {
+        //   var props = [];
+        //   for ( var p in target ) {
+        //     if ( p === '__type__' )
+        //       continue;
 
-      //     var prop = target[p];
-      //     if ( !prop.attrs || prop.attrs.visible === false )
-      //       continue;
+        //     var prop = target[p];
+        //     if ( !prop.attrs || prop.attrs.visible === false )
+        //       continue;
 
-      //     props.push ( prop );
-      //   }
-      //   return props;
-      // },
+        //     props.push ( prop );
+        //   }
+        //   return props;
+        // },
 
-      // DISABLE
-      // _onValueChanged ( event ) {
-      //   var mixinType = this.target.__type__;
-      //   var propEL = Polymer.dom(event).localTarget
-      //   var subPath = event.detail.path;
+        // DISABLE
+        // _onValueChanged ( event ) {
+        //   var mixinType = this.target.__type__;
+        //   var propEL = Polymer.dom(event).localTarget
+        //   var subPath = event.detail.path;
 
-      //   if ( subPath ) {
-      //     this.notifyPath('target.' + propEL.name + '.' + subPath,
-      //             event.detail.value );
-      //   } else {
-      //     this.notifyPath('target.' + propEL.name + '.value',
-      //             event.detail.value );
-      //   }
-      // },
+        //   if ( subPath ) {
+        //     this.notifyPath('target.' + propEL.name + '.' + subPath,
+        //             event.detail.value );
+        //   } else {
+        //     this.notifyPath('target.' + propEL.name + '.value',
+        //             event.detail.value );
+        //   }
+        // },
 
-      _onKeyDown (event) {
-        // press 'enter' and 'space'
-        if (event.keyCode === 13 || event.keyCode === 32) {
-          event.preventDefault();
+        _onKeyDown (event) {
+          // press 'enter' and 'space'
+          if (event.keyCode === 13 || event.keyCode === 32) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.folded = !this.folded;
+          }
+          // press left
+          else if (event.keyCode === 37) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.folded = true;
+          }
+          // press right
+          else if (event.keyCode === 39) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.folded = false;
+          }
+        },
+
+        _onCloseClick (event) {
           event.stopPropagation();
-          this.folded = !this.folded;
-        }
-        // press left
-        else if (event.keyCode === 37) {
-          event.preventDefault();
-          event.stopPropagation();
-          this.folded = true;
-        }
-        // press right
-        else if (event.keyCode === 39) {
-          event.preventDefault();
-          event.stopPropagation();
-          this.folded = false;
-        }
-      },
 
-      _onCloseClick (event) {
-        event.stopPropagation();
-
-        this.fire('remove-comp', {
-          uuid: this.target.uuid,
-        });
-      },
-    });
+          this.fire('remove-comp', {
+            uuid: this.target.uuid,
+          });
+        },
+      });
+    })();
   </script>
 

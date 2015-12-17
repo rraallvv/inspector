@@ -9,8 +9,15 @@
       }
 
       editor-toolbar {
-        padding-bottom: 5px;
         margin-bottom: 10px;
+      }
+
+      .prefab-toolbar {
+        margin-bottom: 10px;
+      }
+
+      .prefab-toolbar editor-button {
+        margin-right: 5px;
       }
     </style>
 
@@ -23,13 +30,13 @@
     </editor-toolbar>
 
     <template is="dom-if" if="[[target.__prefab__]]">
-      <editor-toolbar class="end-justified">
+      <div class="prefab-toolbar layout horizontal center">
         <editor-label class="blue mini">prefab</editor-label>
         <span class="flex-1"></span>
-        <editor-button on-click="_onPrefabSelect">Select</editor-button>
-        <editor-button on-click="_onPrefabRevert">Revert</editor-button>
-        <editor-button on-click="_onPrefabApply">Apply</editor-button>
-      </editor-toolbar>
+        <editor-button class="small" on-click="_onPrefabSelect">Select</editor-button>
+        <editor-button class="small red" on-click="_onPrefabRevert">Revert</editor-button>
+        <editor-button class="small green" on-click="_onPrefabApply">Apply</editor-button>
+      </div>
     </template>
   </template>
 

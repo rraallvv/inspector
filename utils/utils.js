@@ -104,8 +104,13 @@ function _buildProp ( node, nodeType, key, clsList, path, useArray, valAttrs ) {
 
   //
   path = path + '.' + key;
+  let name = key;
+  if ( valAttrs && valAttrs.displayName ) {
+    name = valAttrs.displayName;
+  }
+
   let info = {
-    name: key,
+    name: name,
     path: path,
     value: val,
     type: valType ? valType : '',
