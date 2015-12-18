@@ -21,6 +21,7 @@
   },
   "panels": {
     "panel": {
+      "popable": false,
       "frame": "panel/inspector.html",
       "type": "dockable",
       "title": "i18n:MAIN_MENU.panel.inspector",
