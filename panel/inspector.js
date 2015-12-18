@@ -102,7 +102,6 @@
         return;
       }
 
-      this._checkIfApply();
       this._setInspectState('connecting');
       this.showLoaderAfter(200);
 
@@ -301,8 +300,6 @@
     },
 
     uninspect () {
-      this._checkIfApply();
-
       this.reset();
       this._removeContent();
       this._setInspectState('uninspect');
@@ -414,7 +411,7 @@
       Editor.assetdb.queryMetaInfoByUuid( id, info => {
         if ( !info ) {
           if ( cb ) {
-            cb ( new Error('Can not find asset path by uuid ' + id) );
+            cb ( new Error(`Failed to query meta info by ${id}`) );
           }
           return;
         }
@@ -627,6 +624,7 @@
     },
 
     'selection:activated' ( type, id ) {
+      this._checkIfApply();
       this.startInspect( type, id, 100 );
     },
 
