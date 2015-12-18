@@ -102,6 +102,7 @@
         return;
       }
 
+      this._checkIfApply();
       this._setInspectState('connecting');
       this.showLoaderAfter(200);
 
@@ -300,6 +301,8 @@
     },
 
     uninspect () {
+      this._checkIfApply();
+
       this.reset();
       this._removeContent();
       this._setInspectState('uninspect');
@@ -324,6 +327,30 @@
       this.cancelAsync(this._loaderID);
       this._loaderID = null;
       this.$.loader.hidden = true;
+    },
+
+    _checkIfApply () {
+      if (
+        this._selectType === 'asset' &&
+        this._curInspector &&
+        this._curInspector &&
+        this._curInspector.dirty
+      ) {
+        let meta = this._curInspector.target;
+        let result = Editor.Dialog.messageBox({
+          type: 'warning',
+          buttons: ['Apply', 'Revert'],
+          title: 'Warning',
+          message: 'Unapplied import settings',
+          detail: `Unapplied import settings for '${meta.__url__}'`
+        });
+
+        if ( result === 0 ) {
+          this.fire('meta-apply');
+        } else {
+          this.fire('meta-revert', { uuid: meta.uuid });
+        }
+      }
     },
 
     _removeContent () {
@@ -397,6 +424,7 @@
         meta.__assetType__ = info.assetType;
         meta.__name__ = Path.basenameNoExt(info.assetPath);
         meta.__path__ = info.assetPath;
+        meta.__url__ = info.assetUrl;
         meta.__mtime__ = info.assetMtime;
 
         // map subMetas object to subMetas array
