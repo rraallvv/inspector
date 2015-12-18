@@ -474,6 +474,16 @@
       meta.subMetas = subMetas;
 
       let jsonString = JSON.stringify(meta);
+
+      // NOTE: after serailize meta, we must go back to subMeta array
+      let subMetasArray = [];
+      for ( let name in meta.subMetas ) {
+        let subMeta = meta.subMetas[name];
+        subMeta.__name__ = name;
+        subMetasArray.push(subMeta);
+      }
+      meta.subMetas = subMetasArray;
+
       Editor.assetdb.saveMeta( uuid, jsonString );
       this.showLoaderAfter(0);
     },
