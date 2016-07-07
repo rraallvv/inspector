@@ -1,59 +1,79 @@
 <link rel="import" href="node-header.html">
+<link rel="import" href="node-section.html">
 <link rel="import" href="comps-section.html">
 
 <dom-module id="cc-node-inspector">
   <link rel="import" type="css" href="common.css">
-
   <template>
-    <inspector-node-header
-      target="{{target}}"
-    >
-    </inspector-node-header>
-
+    <inspector-node-header target="{{target}}"></inspector-node-header>
     <div class="props flex-1 layout vertical">
-      <editor-section text="Node">
-        <editor-prop prop="{{target.position}}"></editor-prop>
-        <editor-prop prop="{{target.rotation}}"></editor-prop>
-        <editor-prop prop="{{target.scale}}"></editor-prop>
-        <editor-prop prop="{{target.anchor}}"></editor-prop>
-        <editor-prop prop="{{target.size}}"></editor-prop>
-        <editor-prop prop="{{target.color}}"></editor-prop>
-        <editor-prop prop="{{target.opacity}}"></editor-prop>
-      </editor-section>
-
-      <inspector-comps-section target="{{target}}">
-      </inspector-comps-section>
-
+      <inspector-node-section target="{{target}}">
+        <editor-prop title="[[_T('INSPECTOR.node.position')]]" prop="{{target.position}}"></editor-prop>
+        <editor-prop title="[[_T('INSPECTOR.node.rotation')]]" prop="{{target.rotation}}"></editor-prop>
+        <editor-prop title="[[_T('INSPECTOR.node.scale')]]" prop="{{target.scale}}"></editor-prop>
+        <editor-prop title="[[_T('INSPECTOR.node.anchor')]]" prop="{{target.anchor}}"></editor-prop>
+        <editor-prop title="[[_T('INSPECTOR.node.size')]]" prop="{{target.size}}"></editor-prop>
+        <editor-prop title="[[_T('INSPECTOR.node.color')]]" prop="{{target.color}}"></editor-prop>
+        <editor-prop title="[[_T('INSPECTOR.node.opacity')]]" prop="{{target.opacity}}"></editor-prop>
+        <editor-prop title="Skew" prop="{{target.skew}}"></editor-prop>
+        <editor-custom-prop name="group" title="[[_T('INSPECTOR.node.group')]]">
+          <div class="layout horizontal center">
+            <editor-select class="flex-3 group-list" text="{{target.group.value}}" value="{{target.group.value}}">
+              <template is="dom-repeat" items="{{groupList}}">
+                <editor-option value="{{item}}">{{item}}</editor-option>
+              </template>
+            </editor-select>
+            <editor-button class="small" on-click="_openGroupSettings">[[_T('COMPONENT.sprite.edit_button')]]</editor-button>
+          </div>
+        </editor-custom-prop>
+      </inspector-node-section>
+      <inspector-comps-section target="{{target}}"></inspector-comps-section>
       <div class="add-comp-btn layout horizontal center-center">
-        <editor-button id="addCompBtn"
-          style="width: 240px;"
-          on-click="_onPopupComponentMenu"
-          nofocus
-          >[[_T('INSPECTOR.add_component')]]</editor-button>
+        <editor-button id="addCompBtn" style="width: 240px" on-click="_onPopupComponentMenu" nofocus>[[_T('INSPECTOR.add_component')]]</editor-button>
       </div>
     </div>
   </template>
-
   <script>
-    Editor.registerElement({
+    'use strict';
+
+    Editor.polymerElement({
       properties: {
         target: {
           type: Object,
           value: null,
           notify: true,
         },
+
+        groupList: {
+          type: Array,
+          value: function() {
+            return [];
+          },
+        },
       },
 
-      _onPopupComponentMenu: function () {
+      ready: function() {
+        Editor.Ipc.sendToPanel('scene', 'scene:query-group-list', (err, groupList) => {
+          this.groupList = groupList;
+        });
+
+      },
+
+      _onPopupComponentMenu: function() {
         var rect = this.$.addCompBtn.getBoundingClientRect();
-        Editor.sendToCore(
+        Editor.Ipc.sendToMain(
           'inspector:popup-comp-menu',
           rect.left + 5,
           rect.bottom + 5,
-          this.target.uuid,
-          Editor.requireIpcEvent
+          this.target.uuid
         );
       },
+
+      _openGroupSettings: function() {
+        Editor.Ipc.sendToMain('project-settings:open', {
+          tab: 0
+        });
+      }
     });
   </script>
 </dom-module>

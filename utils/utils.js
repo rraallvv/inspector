@@ -1,252 +1,103 @@
-'use strict';
+"use strict";
 
-function _buildProp ( node, nodeType, key, clsList, path, useArray, valAttrs ) {
-  let clsDef = clsList[nodeType];
-  if ( !clsDef ) {
-    return;
-  }
-
-  if ( key === '__type__' ) {
-    return;
-  }
-
-  // process comps
-  if ( key === '__comps__' ) {
-    return;
-  }
-
-  // get value
-  let val = node[key];
-
-  // get attrs
-  if ( !valAttrs && clsDef.properties ) {
-    valAttrs = clsDef.properties[key];
-  }
-
-  // skip the property if attrs not found
-  if ( !valAttrs ) {
-    return;
-  }
-
-  // skip hidden properties
-  if ( valAttrs.visible === false ) {
-    return;
-  }
-
-  // get value type
-  let valType;
-  if ( val !== null && val !== undefined ) {
-    valType = typeof val;
-    if ( valType === 'object' ) {
-      if ( val.__type__ ) {
-        valType = val.__type__;
-        delete val.__type__;
-      } else {
-        valType = valAttrs.type;
-      }
-    } else {
-      valType = valType.charAt(0).toUpperCase() + valType.slice(1);
-    }
-  } else {
-    valType = valAttrs.type; // if we don't have valType (such as an object or an asset), use attr's type
-  }
-
-  // skip the property if it is array and attrs.type not defined
-  if ( Array.isArray(val) && !valAttrs.type ) {
-    return;
-  }
-
-  // skip the property if visible === false and type not found
-  if ( valAttrs.visible === false && !valType ) {
-    return;
-  }
-
-  // get extends ( NOTE: from attrs.type a.k.a: user define type )
-  let valClsDef = clsList[valAttrs.type];
-  if ( valClsDef && valClsDef.extends ) {
-    valAttrs.extends = valClsDef.extends.slice();
-  }
-
-  // get typename ( NOTE: from current type )
-  valClsDef = clsList[valType];
-  if ( valClsDef ) {
-    valAttrs.typename = valClsDef.name;
-  }
-
-  //
-  if ( typeof val === 'object' ) {
-    // NOTE: if we don't register the type in ui-property, we will expand it.
-    let propType = valAttrs.type;
-    if ( !propType ) {
-      propType = valType;
-    }
-
-    //
-    if ( Array.isArray(val) ) {
-      valType = 'Array';
-    } else if ( Editor.properties && !Editor.properties[propType] ) {
-      if (
-        !valAttrs.extends ||
-        (
-          valAttrs.extends.indexOf('cc.Node') === -1 &&
-          valAttrs.extends.indexOf('cc.Component') === -1 &&
-          valAttrs.extends.indexOf('cc.RawAsset') === -1
-        )
-      ) {
-        if ( cc.js._getClassById(valAttrs.type) ) {
-          valType = 'Object';
-        } else {
-          valType = 'error-unknown';
-        }
-      }
-    }
-  }
-
-  //
-  path = path + '.' + key;
-  let name = key;
-  if ( valAttrs && valAttrs.displayName ) {
-    name = valAttrs.displayName;
-  }
-
-  let info = {
-    name: name,
-    path: path,
-    value: val,
-    type: valType ? valType : '',
-    attrs: valAttrs,
-  };
-
-  if ( useArray ) {
-    if ( !node.__props__ ) {
-      node.__props__ = [];
-    }
-    node.__props__.push(info);
-    delete node[key];
-  } else {
-    node[key] = info;
-  }
-
-  //
-  if ( valType === 'Array' ) {
-    for ( let i = 0; i < val.length; ++i ) {
-      let itemVal = val[i];
-      if ( itemVal && typeof itemVal === 'object' ) {
-        // clone the valAttrs
-        let itemAttrs = {};
-        for ( let p in valAttrs ) {
-          itemAttrs[p] = valAttrs[p];
-        }
-
-        _buildProp( val, itemAttrs.type, i, clsList, path, false, itemAttrs );
-        val[i].name = '[' + i + ']';
-      } else {
-        val[i] = {
-          name: '[' + i + ']',
-          path: path + '.' + i,
-          value: itemVal,
-          type: valAttrs.type,
-          attrs: valAttrs,
-        };
-      }
-    }
-  } else if ( valType === 'Object' ) {
-    for ( let k in val ) {
-      _buildProp( val, valAttrs.type, k, clsList, path, true );
-    }
-  } else {
-    // if this is not a cc.ValueType and it has been register in Editor.properties
-    // that means users wants to customize its ui-control
-    let expand = !clsDef.extends || clsDef.extends.lastIndexOf('cc.ValueType') === -1;
-
-    if ( expand ) {
-      for ( let k in val ) {
-        _buildProp( val, valAttrs.type, k, clsList, path, false );
-      }
-    }
-  }
+function _getValType(e, t) {
+	var r = void 0;
+	if (null !== e && void 0 !== e)
+		if (r = typeof e, "object" === r) {
+			r = e.__type__ ? e.__type__ : t.type;
+			var _ = t.type;
+			_ || (_ = r), Array.isArray(e) ? r = "Array" : Editor.properties && !Editor.properties[_] && (!t.attrsExtends || -1 === t.attrsExtends.indexOf("cc.Node") && -1 === t.attrsExtends.indexOf("cc.Component") && -1 === t.attrsExtends.indexOf("cc.RawAsset")) && (r = cc.js._getClassById(t.type) ? "Object" : "error-unknown")
+		} else r = r.charAt(0).toUpperCase() + r.slice(1);
+	else r = t.type;
+	return r
 }
 
-let buildNode = function ( node, clsList, path, useArray ) {
-  let type = node.__type__;
-
-  if ( !type ) {
-    Editor.warn('Type can not be null');
-    return;
-  }
-
-  let clsDef = clsList[type];
-  if ( clsDef ) {
-    if ( clsDef.editor ) {
-      node.__editor__ = clsDef.editor;
-    }
-    if ( clsDef.name ) {
-      node.__displayName__ = clsDef.name;
-    }
-  }
-
-  for ( let k in node ) {
-    if ( k === '__type__' ) {
-      continue;
-    }
-
-    // process comps
-    if ( k === '__comps__' ) {
-      let comps = node[k];
-      for ( let i = 0; i < comps.length; ++i ) {
-        buildNode(comps[i], clsList, path + '.__comps__.' + i, true);
-      }
-      continue;
-    }
-
-    //
-    if ( node.__editor__ && node.__editor__.inspector ) {
-      useArray = false;
-    }
-
-    _buildProp( node, type, k, clsList, path, useArray );
-  }
-};
-
-function normalizePath ( path ) {
-  path = path.replace( /^target\./, '' );
-  path = path.replace( /^__comps__\.#{0,1}\d+\./, '' );
-
-  return path;
+function _buildProp(e, t, r, _, a, p, i) {
+	var o = _[t];
+	if (o && "__type__" !== r && "__comps__" !== r) {
+		var n = e[r];
+		if (!i && o.properties && (i = o.properties[r]), i && i.visible !== !1 && (!Array.isArray(n) || i.type) && i.visible !== !1) {
+			var s = _[i.type];
+			s && (i.typename = s.name, s["extends"] && (i.attrsExtends = s["extends"].slice()));
+			var l = _getValType(n, i);
+			n && n.__type__ && delete n.__type__;
+			var d = _[l];
+			d && d["extends"] && (i["extends"] = d["extends"].slice()), a = a + "." + r;
+			var c = r;
+			i && i.displayName && (c = i.displayName);
+			var y = {
+				name: c,
+				path: a,
+				value: n,
+				type: l ? l : "",
+				attrs: i
+			};
+			if (p ? (e.__props__ || (e.__props__ = []), e.__props__.push(y), delete e[r]) : e[r] = y, "Array" === l)
+				for (var u = 0; u < n.length; ++u) {
+					var v = n[u],
+						f = _getValType(v, i);
+					v && v.__type__ && delete v.__type__;
+					var m = !1;
+					if (v && "object" == typeof v && (m = !0), m) {
+						var h = {};
+						for (var x in i) h[x] = i[x];
+						_buildProp(n, h.type, u, _, a, !1, h), n[u].name = "[" + u + "]"
+					} else n[u] = {
+						name: "[" + u + "]",
+						path: a + "." + u,
+						value: v,
+						type: f,
+						attrs: {
+							type: i.type
+						}
+					}
+				} else if ("Object" === l)
+					for (var P in n) _buildProp(n, i.type, P, _, a, !0);
+				else {
+					var m = !o["extends"] || -1 === o["extends"].lastIndexOf("cc.ValueType");
+					if (m)
+						for (var P in n) _buildProp(n, i.type, P, _, a, !1)
+				}
+		}
+	}
 }
 
-let _compReg = /^target\.__comps__\.#{0,1}\d+/;
-
-function isCompPath ( path ) {
-  return _compReg.test(path);
+function normalizePath(e) {
+	return e = e.replace(/^target\./, ""), e = e.replace(/^__comps__\.#{0,1}\d+\./, "")
 }
 
-function compPath ( path ) {
-  let matches = _compReg.exec(path);
-  if ( matches ) {
-    return matches[0];
-  }
-  return '';
+function isCompPath(e) {
+	return _compReg.test(e)
 }
 
-function stripValueInPath ( path ) {
-  let list = path.split('.');
-
-  let result = [];
-  for ( let i = 0; i < list.length; ++i ) {
-    let name = list[i];
-    if ( i%2 === 0 ) {
-      result.push(name);
-    }
-  }
-  return result.join('.');
+function compPath(e) {
+	var t = _compReg.exec(e);
+	return t ? t[0] : ""
 }
 
+function stripValueInPath(e) {
+	for (var t = e.split("."), r = [], _ = 0; _ < t.length; ++_) {
+		var a = t[_];
+		_ % 2 === 0 && r.push(a)
+	}
+	return r.join(".")
+}
+var buildNode = function e(t, r, _, a) {
+		var p = t.__type__;
+		if (!p) return void Editor.warn("Type can not be null");
+		var i = r[p];
+		i && (i.editor && (t.__editor__ = i.editor), i.name && (t.__displayName__ = i.name));
+		for (var o in t)
+			if ("__type__" !== o)
+				if ("__comps__" !== o) t.__editor__ && t.__editor__.inspector && (a = !1), _buildProp(t, p, o, r, _, a);
+				else
+					for (var n = t[o], s = 0; s < n.length; ++s) e(n[s], r, _ + ".__comps__." + s, !0)
+	},
+	_compReg = /^target\.__comps__\.#{0,1}\d+/;
 module.exports = {
-  buildNode: buildNode,
-  isCompPath: isCompPath,
-  compPath: compPath,
-  normalizePath: normalizePath,
-  stripValueInPath: stripValueInPath,
+	buildNode: buildNode,
+	isCompPath: isCompPath,
+	compPath: compPath,
+	normalizePath: normalizePath,
+	stripValueInPath: stripValueInPath
 };
-

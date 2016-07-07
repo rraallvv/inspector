@@ -3,40 +3,23 @@
   "version": "0.1.4",
   "description": "inspector",
   "author": "Firebox Technology",
-  "hosts": {
-    "editor-framework": "^0.3.15"
-  },
-  "pkgDependencies": {
-    "fire-ui-kit": "^0.1.0",
-    "ui-kit": "^0.1.0",
-    "ui-property": "^0.1.0"
-  },
   "main": "main.js",
-  "menus": {
+  "main-menu": {
     "i18n:MAIN_MENU.panel.title/i18n:MAIN_MENU.panel.inspector": {
       "icon": "panel/icon.png",
       "accelerator": "CmdOrCtrl+3",
       "message": "inspector:open"
     }
   },
-  "panels": {
-    "panel": {
-      "popable": false,
-      "frame": "panel/inspector.html",
-      "type": "dockable",
-      "title": "i18n:MAIN_MENU.panel.inspector",
-      "icon": "panel/icon.png",
-      "width": 300,
-      "min-width": 300,
-      "messages": [
-        "selection:activated",
-        "scene:reply-query-node",
-        "scene:reloading",
-        "asset-db:assets-moved",
-        "asset-db:asset-changed",
-        "asset-db:asset-uuid-changed"
-      ]
-    }
+  "panel": {
+    "main": "panel/inspector.html",
+    "ui": "polymer",
+    "popable": false,
+    "type": "dockable",
+    "title": "i18n:MAIN_MENU.panel.inspector",
+    "icon": "panel/icon.png",
+    "width": 300,
+    "min-width": 300
   },
   "tests": [
     "test/build-node.html",

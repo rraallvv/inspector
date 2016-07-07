@@ -3,13 +3,14 @@
     <style>
       :host {
         display: flex;
+        flex: none;
         flex-direction: column;
         flex-wrap: nowrap;
         align-items: stretch;
         box-sizing: border-box;
         margin-bottom: 1px;
 
-        font-size: 1.2rem;
+        font-size: 1.0rem;
       }
 
       .header {
@@ -29,7 +30,7 @@
         cursor: pointer;
       }
 
-      .close {
+      .help {
         text-align: center;
         padding: 0px 4px;
         width: 9px;
@@ -40,12 +41,23 @@
         border-radius: 2px;
       }
 
-      .close:hover {
-        color: #c80505;
+      .help:hover {
+        color: #eee;
       }
 
-      .close:active {
-        color: #a30000;
+      .dropdown {
+        text-align: center;
+        padding: 0px 4px;
+        width: 9px;
+        transition: width .5s ease;
+        overflow: hidden;
+        display: inline-block;
+        white-space: nowrap;
+        border-radius: 2px;
+      }
+
+      .dropdown:hover {
+        color: #f2f2f2;
       }
 
       .title {
@@ -61,7 +73,7 @@
         display: flex;
         flex-flow: column nowrap;
         padding: 5px 0px 5px 6px;
-        font-size: 1.4rem;
+        font-size: 0.8rem;
       }
 
       .hidden {
@@ -86,6 +98,7 @@
     </style>
 
     <div class="header" id="header"
+      title="[[_T('INSPECTOR.component.header')]]"
       on-click="_onFoldClick"
       on-keydown="_onKeyDown"
       on-focus="_onFocus"
@@ -93,11 +106,15 @@
       >
       <div class="layout horizontal center flex-1">
         <i class$="{{_foldClass(folded)}}"></i>
-        <editor-checkbox checked="{{target.enabled}}" nofocus hidden="[[!target.__editor__._showTick]]"></editor-checkbox>
+        <editor-checkbox checked="{{target.enabled}}" nofocus hidden="[[!target.__editor__._showTick]]" title="[[_T('INSPECTOR.component.enabled')]]"></editor-checkbox>
         <div class="title">{{_targetName(target)}}</div>
       </div>
-      <div class="close" on-click="_onCloseClick">
-        <i class="fa fa-times"></i>
+      <div class="help" title="[[_T('INSPECTOR.component.help')]]" hidden="[[!target.__editor__.help]]" on-click="_onOpenHelpClick">
+        <i class="fa fa-book"></i>
+      </div>
+      <p style="margin: 2px"></p>
+      <div id="dropdown" class="dropdown" title="" on-click="_onMenuClick">
+        <i class="fa fa-cog"></i>
       </div>
     </div>
     <div class="content" id="content">
@@ -108,15 +125,14 @@
       </template>
     </div>
   </template>
-
   <script>
     (() => {
       'use strict';
 
       let _url2imported = {};
 
-      Editor.registerElement({
-        behaviors: [EditorUI.focusable],
+      Editor.polymerElement({
+        behaviors: [Editor.UI.PolymerFocusable],
 
         listeners: {},
 
@@ -190,7 +206,7 @@
             return;
           }
 
-          EditorUI.import( url, err => {
+          Editor.UI.PolymerUtils.import( url, err => {
             if ( err ) {
               Editor.error(`${err.message}`);
               return;
@@ -202,10 +218,10 @@
         },
 
         _appendElement () {
-          let prefix = EditorUI.kebabCase(this.target.__type__);
+          let prefix = Editor.UI.DomUtils.kebabCase(this.target.__type__);
 
           // TODO
-          // let inst = EditorUI.templatize(
+          // let inst = Editor.UI.PolymerUtils.templatize(
           //   this,
           //   `<${prefix}-inspector target="{{target}}"></${prefix}-inspector>`,
           //   {
@@ -222,14 +238,14 @@
             Editor.error(`Can not create <${prefix}-inspector>, tag not found. Make sure you register it same as the kebab-case of your classname`);
           }
 
-          EditorUI.bind( this, 'target', el, 'target' );
+          Editor.UI.PolymerUtils.bind( this, 'target', el, 'target' );
           Polymer.dom(this.$.content).appendChild(el);
           this._el = el;
         },
 
         _targetName ( target ) {
           if ( target ) {
-            return target.__displayName__ || EditorUI.toHumanText(target.__type__);
+            return target.__displayName__ || Editor.UI.DomUtils.toHumanText(target.__type__);
           }
 
           return 'Unknown';
@@ -294,14 +310,44 @@
           }
         },
 
-        _onCloseClick (event) {
+        _onMenuClick (event) {
           event.stopPropagation();
 
-          this.fire('remove-comp', {
-            uuid: this.target.uuid,
-          });
+          if (this._requestID) {
+            Editor.Ipc.cancelRequest(this._requestID);
+            this._requestID = null;
+          }
+
+          this._requestID = Editor.Ipc.sendToPanel(
+          'scene', 'scene:has-copied-component', (error, hasCopiedComp) => {
+            let rect = this.$.dropdown.getBoundingClientRect();
+            let nodeUuid = this.target.node.uuid;
+            let compUuid = this.target.uuid;
+            let node = cc.engine.getInstanceById(nodeUuid);
+            let comp = cc.engine.getInstanceById(compUuid);
+            this.fire('show-comp-inspector-menu', {
+              nodeUuid: nodeUuid,
+              compUuid: compUuid,
+              hasCopyComp: hasCopiedComp,
+              compIndex: node._components.indexOf(comp),
+              compCount: node._components.length,
+              x: rect.left,
+              y: rect.bottom + 5,
+            });
+          }, -1);
         },
+
+        _onOpenHelpClick (event) {
+          event.stopPropagation();
+          let url = this.target.__editor__.help;
+          if (url.startsWith('i18n:')) {
+            url = Editor.T(url.replace('i18n:', ''));
+          }
+          const Electron = require('electron');
+          Electron.shell.openExternal(url);
+        },
+
       });
     })();
   </script>
-
+</dom-module>

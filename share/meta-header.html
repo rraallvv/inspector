@@ -26,7 +26,7 @@
 
     <editor-toolbar>
       <span class="flex-1 layout horizontal center">
-        <img class="icon" src={{icon}}></img>
+        <img class="icon" src="{{icon}}">
         <div class="title">{{target.__name__}}</div>
       </span>
 
@@ -34,7 +34,7 @@
         <editor-button disabled="{{!dirty}}" class="red" on-click="_onRevert">
           <i class="fa fa-close"></i>
         </editor-button>
-        <editor-button disabled="{{!dirty}}" class='green' on-click="_onApply">
+        <editor-button disabled="{{!dirty}}" class="green" on-click="_onApply">
           <i class="fa fa-check"></i>
         </editor-button>
       </span>
@@ -42,7 +42,7 @@
   </template>
 
   <script>
-    Editor.registerElement({
+    Editor.polymerElement({
 
       properties: {
         target: {
@@ -61,18 +61,16 @@
         },
       },
 
-      _onRevert: function ( event ) {
-        event.stopPropagation();
-
-        this.fire('meta-revert', {
-          uuid: this.target.uuid,
-        });
+      _onRevert: function(t) {
+        t.stopPropagation(), this.fire("meta-revert", {
+          uuid: this.target.uuid
+        })
       },
 
-      _onApply: function ( event ) {
-        event.stopPropagation();
+      _onApply: function(t) {
+        t.stopPropagation();
 
-        this.fire('meta-apply');
+		this.fire("meta-apply");
       },
     });
   </script>

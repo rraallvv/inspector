@@ -1,5 +1,5 @@
 <dom-module id="inspector-code-preview">
-  <link rel="import" type="css" href="code-preview.paraiso.dark.css">
+  <link rel="import" type="css" href="code-preview.tomorrow-night-eighties.css">
 
   <template>
     <style>
@@ -7,23 +7,25 @@
         position: relative;
         overflow: auto;
 
-        border: 1px solid black;
-        box-shadow: inset 0 0 8px 2px rgba(0,0,0,0.2);
-        background: #333;
+        /* border: 1px solid black; */
+        /* box-shadow: inset 0 0 8px 2px rgba(0,0,0,0.2); */
+        /* background: #333; */
       }
 
+      /* DISABLE
       @font-face {
         font-family: 'DejaVu Sans Mono';
         src: url('app://editor/static/fonts/DejaVuSansMono.ttf');
         font-weight: normal;
         font-style: normal;
       }
+      */
 
       pre {
         margin: 0px;
         padding: 10px;
-        font-size: 14px;
-        font-family: 'DejaVu Sans Mono';
+        font-size: 12px;
+        font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
 
         -webkit-user-select: text;
         cursor: auto;
@@ -48,7 +50,7 @@
   <script>
     'use strict';
 
-    Editor.registerElement({
+    Editor.polymerElement({
       properties: {
         type: {
           type: String,
@@ -63,7 +65,7 @@
         },
       },
 
-      _pathChanged: function () {
+      _pathChanged () {
         if ( !this.path || this.type === 'unknown' ) {
           return;
         }
@@ -71,7 +73,7 @@
         this._highlightCode();
       },
 
-      _typeChanged: function () {
+      _typeChanged () {
         if ( !this.path || this.type === 'unknown' ) {
           return;
         }
@@ -79,16 +81,20 @@
         this._highlightCode();
       },
 
-      _highlightCode: function () {
-        const Hljs = require('highlight.js');
+      _highlightCode () {
         const Fs = require('fire-fs');
 
         let text = Fs.readFileSync( this.path, {encoding: 'utf-8'} );
-        let result = Hljs.highlight( this.type, text );
-
         let codeDOM = Polymer.dom(this.$.code);
-        codeDOM.innerHTML = result.value;
-        // console.log(result);
+
+        if ( this.type !== 'text' ) {
+          const Hljs = require('highlight.js');
+          let result = Hljs.highlight( this.type, text );
+          codeDOM.innerHTML = result.value;
+          // console.log(result);
+        } else {
+          codeDOM.innerHTML = text;
+        }
       },
     });
   </script>

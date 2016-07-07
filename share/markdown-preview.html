@@ -27,7 +27,7 @@
 
       @font-face {
         font-family: 'DejaVu Sans Mono';
-        src: url('app://editor/static/fonts/DejaVuSansMono.ttf');
+        src: url('unpack://static/fonts/DejaVuSansMono.ttf');
         font-weight: normal;
         font-style: normal;
       }
@@ -73,7 +73,7 @@
   <script>
     'use strict';
 
-    Editor.registerElement({
+    Editor.polymerElement({
       properties: {
         type: {
           type: String,
@@ -107,16 +107,16 @@
       _highlightCode () {
         const Hljs = require('highlight.js');
         const Fs = require('fire-fs');
-        const marked = require('marked');
+        const Marked = require('marked');
 
-        marked.setOptions({
+        Marked.setOptions({
           highlight: function (code) {
             return Hljs.highlightAuto(code).value;
           }
         });
 
         let text = Fs.readFileSync( this.path, {encoding: 'utf-8'} );
-        let result = marked( text );
+        let result = Marked( text );
 
         let codeDOM = Polymer.dom(this.$.code);
         codeDOM.innerHTML = result;
